@@ -1,0 +1,6 @@
+{
+  "name": "EcoPulse Vision",
+  "description": "An AI-powered carbon footprint analyzer and climate action tool built for UN SDG 13 (Climate Action) using Gemini Vision API.",
+  "requestFramePermissions": ["camera"],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
