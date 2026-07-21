@@ -55,45 +55,63 @@ export default function DynamicForm({
   };
 
   const getCategoryOptions = () => {
-    return BASELINE_FACTORS[detectedItem.category] || [];
+    const baseOptions = BASELINE_FACTORS[detectedItem.category] || [];
+    if (detectedItem.estimated_factor !== undefined && detectedItem.factor_label !== undefined) {
+      const aiOption = {
+        key: "ai_estimate",
+        label: `AI Suggested (${detectedItem.factor_label})`,
+        value: detectedItem.estimated_factor,
+        unit: detectedItem.default_unit
+      };
+      return [aiOption, ...baseOptions];
+    }
+    return baseOptions;
   };
 
   // Reset/Adjust selections when detected item changes
   useEffect(() => {
-    const options = getCategoryOptions();
-    
-    // Attempt to match by name or pick the default
-    let matchedOption = options[0];
-    const nameLower = detectedItem.item_name.toLowerCase();
-    
-    if (nameLower.includes("ac") || nameLower.includes("conditioner")) {
-      matchedOption = options.find(o => o.key === "ac") || options[0];
-    } else if (nameLower.includes("petrol") || nameLower.includes("gasoline")) {
-      matchedOption = options.find(o => o.key === "petrol") || options[0];
-    } else if (nameLower.includes("diesel")) {
-      matchedOption = options.find(o => o.key === "diesel") || options[0];
-    } else if (nameLower.includes("grid") || nameLower.includes("electricity") || nameLower.includes("power")) {
-      matchedOption = options.find(o => o.key === "grid") || options[0];
+    if (detectedItem.estimated_quantity !== undefined) {
+      setQuantity(detectedItem.estimated_quantity);
+    } else {
+      // Dynamic initial quantity defaults
+      if (detectedItem.default_unit === "km") {
+        setQuantity(50);
+      } else if (detectedItem.default_unit === "kWh") {
+        setQuantity(30);
+      } else {
+        setQuantity(8);
+      }
     }
 
-    if (matchedOption) {
-      setSelectedFactorKey(matchedOption.key);
-      setCustomFactor(matchedOption.value);
+    if (detectedItem.estimated_factor !== undefined) {
+      setSelectedFactorKey("ai_estimate");
+      setCustomFactor(detectedItem.estimated_factor);
     } else {
-      setSelectedFactorKey("custom");
-      setCustomFactor(1.0);
+      const options = getCategoryOptions();
+      // Attempt to match by name or pick the default
+      let matchedOption = options[0];
+      const nameLower = detectedItem.item_name.toLowerCase();
+      
+      if (nameLower.includes("ac") || nameLower.includes("conditioner")) {
+        matchedOption = options.find(o => o.key === "ac") || options[0];
+      } else if (nameLower.includes("petrol") || nameLower.includes("gasoline")) {
+        matchedOption = options.find(o => o.key === "petrol") || options[0];
+      } else if (nameLower.includes("diesel")) {
+        matchedOption = options.find(o => o.key === "diesel") || options[0];
+      } else if (nameLower.includes("grid") || nameLower.includes("electricity") || nameLower.includes("power")) {
+        matchedOption = options.find(o => o.key === "grid") || options[0];
+      }
+
+      if (matchedOption) {
+        setSelectedFactorKey(matchedOption.key);
+        setCustomFactor(matchedOption.value);
+      } else {
+        setSelectedFactorKey("custom");
+        setCustomFactor(1.0);
+      }
     }
     
     setIsCustom(false);
-
-    // Dynamic initial quantity defaults
-    if (detectedItem.default_unit === "km") {
-      setQuantity(50);
-    } else if (detectedItem.default_unit === "kWh") {
-      setQuantity(30);
-    } else {
-      setQuantity(8);
-    }
   }, [detectedItem]);
 
   const activeOption = getCategoryOptions().find((o) => o.key === selectedFactorKey);

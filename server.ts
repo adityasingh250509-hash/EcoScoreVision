@@ -35,6 +35,13 @@ app.post("/api/analyze-image", async (req, res) => {
       return res.status(400).json({ error: "No image provided" });
     }
 
+    // Verify API Key
+    if (!process.env.GEMINI_API_KEY) {
+      return res.status(400).json({
+        error: "GEMINI_API_KEY is not configured in the workspace secrets. Please open 'Settings' (gear icon in the top-right corner of Google AI Studio) > 'Secrets', add your 'GEMINI_API_KEY', and click 'Restart Dev Server'. Alternatively, you can test the application instantly by selecting any of the pre-loaded baseline samples below!"
+      });
+    }
+
     // Clean base64 string if it contains prefix
     let base64Data = image;
     let mimeType = "image/jpeg";
@@ -53,46 +60,130 @@ app.post("/api/analyze-image", async (req, res) => {
     };
 
     const textPart = {
-      text: "Identify the appliance, vehicle, or item in this image. Return ONLY a valid JSON object with the following structure: {\"item_name\": \"string\", \"category\": \"appliance|transport|energy|waste\", \"default_unit\": \"hours|km|kWh\"}.",
+      text: "Identify the appliance, vehicle, or item in this image. Estimate a typical/standard consumption quantity (e.g., standard daily hours for appliances, typical travel distance in km for transport, or average kWh for energy) and its corresponding carbon emission factor (kg CO2 per unit). Return ONLY a valid JSON object with the following structure: {\"item_name\": \"string\", \"category\": \"appliance|transport|energy|waste\", \"default_unit\": \"hours|km|kWh\", \"estimated_quantity\": number, \"estimated_factor\": number, \"factor_label\": \"string\"}. Provide highly realistic estimates (e.g. typical car is 50 km and 0.12 kg/km; typical AC is 8 hours and 1.5 kg/hour; typical refrigerator is 24 hours and 0.15 kg/hour, etc.).",
     };
 
-    const response = await ai.models.generateContent({
-      model: "gemini-3.5-flash",
-      contents: { parts: [imagePart, textPart] },
-      config: {
-        responseMimeType: "application/json",
-        responseSchema: {
-          type: Type.OBJECT,
-          properties: {
-            item_name: { 
-              type: Type.STRING, 
-              description: "The common name of the identified item, vehicle, or appliance." 
+    let response;
+    try {
+      // First attempt: contents: { parts: [...] }
+      response = await ai.models.generateContent({
+        model: "gemini-3.5-flash",
+        contents: { parts: [imagePart, textPart] },
+        config: {
+          responseMimeType: "application/json",
+          responseSchema: {
+            type: Type.OBJECT,
+            properties: {
+              item_name: { 
+                type: Type.STRING, 
+                description: "The common name of the identified item, vehicle, or appliance." 
+              },
+              category: { 
+                type: Type.STRING, 
+                description: "Must be exactly one of: appliance, transport, energy, waste" 
+              },
+              default_unit: { 
+                type: Type.STRING, 
+                description: "Must be exactly one of: hours, km, kWh" 
+              },
+              estimated_quantity: {
+                type: Type.NUMBER,
+                description: "An estimated typical consumption value (e.g., typical travel distance or hours)."
+              },
+              estimated_factor: {
+                type: Type.NUMBER,
+                description: "An estimated carbon coefficient (kg CO2 per unit)."
+              },
+              factor_label: {
+                type: Type.STRING,
+                description: "A description of the emission factor model used."
+              }
             },
-            category: { 
-              type: Type.STRING, 
-              description: "Must be exactly one of: appliance, transport, energy, waste" 
-            },
-            default_unit: { 
-              type: Type.STRING, 
-              description: "Must be exactly one of: hours, km, kWh" 
+            required: ["item_name", "category", "default_unit", "estimated_quantity", "estimated_factor", "factor_label"]
+          }
+        }
+      });
+    } catch (err1: any) {
+      console.warn("First API structure failed, retrying with flat array format:", err1);
+      try {
+        // Second attempt: contents: [imagePart, textPart]
+        response = await ai.models.generateContent({
+          model: "gemini-3.5-flash",
+          contents: [imagePart, textPart],
+          config: {
+            responseMimeType: "application/json",
+            responseSchema: {
+              type: Type.OBJECT,
+              properties: {
+                item_name: { type: Type.STRING },
+                category: { type: Type.STRING },
+                default_unit: { type: Type.STRING },
+                estimated_quantity: { type: Type.NUMBER },
+                estimated_factor: { type: Type.NUMBER },
+                factor_label: { type: Type.STRING }
+              },
+              required: ["item_name", "category", "default_unit", "estimated_quantity", "estimated_factor", "factor_label"]
             }
-          },
-          required: ["item_name", "category", "default_unit"]
+          }
+        });
+      } catch (err2: any) {
+        console.warn("Flat array format failed, retrying with gemini-3.1-flash-lite:", err2);
+        try {
+          // Third attempt: fallback model (gemini-3.1-flash-lite)
+          response = await ai.models.generateContent({
+            model: "gemini-3.1-flash-lite",
+            contents: [imagePart, textPart],
+            config: {
+              responseMimeType: "application/json",
+              responseSchema: {
+                type: Type.OBJECT,
+                properties: {
+                  item_name: { type: Type.STRING },
+                  category: { type: Type.STRING },
+                  default_unit: { type: Type.STRING },
+                  estimated_quantity: { type: Type.NUMBER },
+                  estimated_factor: { type: Type.NUMBER },
+                  factor_label: { type: Type.STRING }
+                },
+                required: ["item_name", "category", "default_unit", "estimated_quantity", "estimated_factor", "factor_label"]
+              }
+            }
+          });
+        } catch (err3: any) {
+          // Final attempt: without strict schema mapping
+          console.warn("All structured format attempts failed, retrying without responseSchema:", err3);
+          response = await ai.models.generateContent({
+            model: "gemini-3.5-flash",
+            contents: [
+              imagePart,
+              { text: "Identify the appliance, vehicle, or item in this image. Estimate standard usage quantity and emission factor. Return ONLY a valid JSON object. Do not include markdown code blocks or backticks. Structure: {\"item_name\": \"string\", \"category\": \"appliance|transport|energy|waste\", \"default_unit\": \"hours|km|kWh\", \"estimated_quantity\": 8, \"estimated_factor\": 1.5, \"factor_label\": \"Standard AC Unit\"}" }
+            ]
+          });
         }
       }
-    });
+    }
 
-    const text = response.text;
+    let text = response.text;
     if (!text) {
       throw new Error("Empty response received from Gemini API");
     }
 
-    const result = JSON.parse(text.trim());
+    // Clean up potential markdown formatting backticks from response if we didn't use schema or if model ignored it
+    text = text.trim();
+    if (text.startsWith("```")) {
+      text = text.replace(/^```(json)?/, "").replace(/```$/, "").trim();
+    }
+
+    const result = JSON.parse(text);
     return res.json(result);
 
   } catch (error: any) {
     console.error("Error in /api/analyze-image:", error);
-    return res.status(500).json({ error: error.message || "Failed to analyze image with AI" });
+    let userMsg = error.message || "Failed to analyze image with AI";
+    if (userMsg.includes("API_KEY") || userMsg.includes("api key") || userMsg.includes("API key")) {
+      userMsg = "The configured Gemini API Key is missing or invalid. Please open Settings (gear icon in the top right corner of AI Studio) > Secrets, add/verify your GEMINI_API_KEY, restart the server, or try using the preloaded baseline samples below.";
+    }
+    return res.status(500).json({ error: userMsg });
   }
 });
 
@@ -101,6 +192,10 @@ app.post("/api/get-advice", async (req, res) => {
   try {
     const { item_name, category, quantity, unit, emissions, tree_offset } = req.body;
     
+    if (!process.env.GEMINI_API_KEY) {
+      throw new Error("GEMINI_API_KEY is missing");
+    }
+
     const prompt = `As an environmental climate expert, provide 3 short, specific, highly actionable bullet points with mitigation advice and tree offset recommendations based on the following:
 Item detected: ${item_name}
 Category: ${category}
@@ -110,26 +205,40 @@ Tree offset targets: ${tree_offset} trees (since 1 tree sequesters ~20kg CO2 per
 
 Format your output as a JSON array of 3 strings. Avoid markdown inside the strings, just clear, crisp advice.`;
 
-    const response = await ai.models.generateContent({
-      model: "gemini-3.5-flash",
-      contents: prompt,
-      config: {
-        responseMimeType: "application/json",
-        responseSchema: {
-          type: Type.ARRAY,
-          items: {
-            type: Type.STRING
+    let response;
+    try {
+      response = await ai.models.generateContent({
+        model: "gemini-3.5-flash",
+        contents: prompt,
+        config: {
+          responseMimeType: "application/json",
+          responseSchema: {
+            type: Type.ARRAY,
+            items: {
+              type: Type.STRING
+            }
           }
         }
-      }
-    });
+      });
+    } catch (err1) {
+      console.warn("First advice attempt failed, retrying without strict schema:", err1);
+      response = await ai.models.generateContent({
+        model: "gemini-3.5-flash",
+        contents: prompt + " Your response MUST be a raw JSON array of 3 strings, with no markdown codeblocks."
+      });
+    }
 
-    const text = response.text;
+    let text = response.text;
     if (!text) {
       throw new Error("Empty response received from advice Gemini API");
     }
 
-    const advice = JSON.parse(text.trim());
+    text = text.trim();
+    if (text.startsWith("```")) {
+      text = text.replace(/^```(json)?/, "").replace(/```$/, "").trim();
+    }
+
+    const advice = JSON.parse(text);
     return res.json({ advice });
   } catch (error: any) {
     console.error("Error getting advice:", error);

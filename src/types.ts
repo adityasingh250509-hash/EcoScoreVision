@@ -5,6 +5,9 @@ export interface DetectedItem {
   item_name: string;
   category: CategoryType;
   default_unit: UnitType;
+  estimated_quantity?: number;
+  estimated_factor?: number;
+  factor_label?: string;
 }
 
 export interface CalculationResult {

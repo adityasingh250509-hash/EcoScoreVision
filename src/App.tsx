@@ -107,6 +107,19 @@ export default function App() {
 
       const data: DetectedItem = await response.json();
       setDetectedItem(data);
+
+      // Trigger automatic emissions calculation instantly using AI suggested metrics
+      const qty = data.estimated_quantity ?? (data.default_unit === "km" ? 50 : data.default_unit === "kWh" ? 30 : 8);
+      const factor = data.estimated_factor ?? 1.0;
+      const label = data.factor_label ?? "AI Baseline Standard";
+
+      await handleCalculateEmissions({
+        quantity: qty,
+        factor,
+        unitName: data.default_unit,
+        factorLabel: label,
+      }, data);
+
     } catch (error: any) {
       console.error("AI Analysis failed:", error);
       setAnalysisError(error.message || "Failed to analyze image. Please try a different photo or select a test sample.");
@@ -121,8 +134,9 @@ export default function App() {
     factor: number;
     unitName: string;
     factorLabel: string;
-  }) => {
-    if (!detectedItem) return;
+  }, customItem?: DetectedItem) => {
+    const item = customItem || detectedItem;
+    if (!item) return;
     
     setIsCalculating(true);
     const { quantity, factor, unitName, factorLabel } = formData;
@@ -147,8 +161,8 @@ export default function App() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          item_name: detectedItem.item_name,
-          category: detectedItem.category,
+          item_name: item.item_name,
+          category: item.category,
           quantity,
           unit: unitName,
           emissions,
@@ -183,8 +197,8 @@ export default function App() {
       const newHistoryItem: HistoryItem = {
         id: Math.random().toString(36).substring(2, 9),
         timestamp,
-        item_name: detectedItem.item_name,
-        category: detectedItem.category,
+        item_name: item.item_name,
+        category: item.category,
         quantity,
         unit: unitName as UnitType,
         emissions,
@@ -199,7 +213,7 @@ export default function App() {
       // Fallback advice block in case advice endpoint times out
       const fallbackTips: Record<CategoryType, string[]> = {
         appliance: [
-          `Consider upgrading your ${detectedItem.item_name} to an Energy Star high-efficiency rating to save on carbon output.`,
+          `Consider upgrading your ${item.item_name} to an Energy Star high-efficiency rating to save on carbon output.`,
           "Reduce operational usage times during high-tariff peak grid load cycles.",
           `Planting ${treeOffset} tree(s) this season directly offsets this operational footprint.`
         ],
@@ -224,7 +238,7 @@ export default function App() {
         emissions,
         treeOffset,
         status,
-        advice: fallbackTips[detectedItem.category] || fallbackTips.appliance,
+        advice: fallbackTips[item.category] || fallbackTips.appliance,
       };
 
       setCalculationResult(result);
@@ -239,8 +253,8 @@ export default function App() {
       const newHistoryItem: HistoryItem = {
         id: Math.random().toString(36).substring(2, 9),
         timestamp,
-        item_name: detectedItem.item_name,
-        category: detectedItem.category,
+        item_name: item.item_name,
+        category: item.category,
         quantity,
         unit: unitName as UnitType,
         emissions,
@@ -256,14 +270,26 @@ export default function App() {
   // Helper to load sample image instantly
   const handleSelectSample = (sample: SampleItem) => {
     setSelectedImage(sample.image);
-    setDetectedItem({
+    const itemData: DetectedItem = {
       item_name: sample.name,
       category: sample.category,
       default_unit: sample.default_unit,
-    });
+      estimated_quantity: sample.default_unit === "km" ? 50 : sample.default_unit === "kWh" ? 30 : 8,
+      estimated_factor: sample.category === "appliance" ? 1.5 : sample.category === "transport" ? 0.12 : sample.category === "energy" ? 0.82 : 0.45,
+      factor_label: sample.category === "appliance" ? "Air Conditioner (Standard)" : sample.category === "transport" ? "Petrol Passenger Car" : sample.category === "energy" ? "National Grid Electricity" : "Mixed Landfill Waste"
+    };
+    setDetectedItem(itemData);
     setCalculationResult(null);
     setCalcInputs(null);
     setAnalysisError(null);
+
+    // Run emissions calculation instantly for selected test samples as well
+    handleCalculateEmissions({
+      quantity: itemData.estimated_quantity!,
+      factor: itemData.estimated_factor!,
+      unitName: itemData.default_unit,
+      factorLabel: itemData.factor_label!
+    }, itemData);
   };
 
   // Load a historic scan back into the workspace
