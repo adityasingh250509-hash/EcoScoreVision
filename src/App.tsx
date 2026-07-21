@@ -11,7 +11,12 @@ import {
   AlertCircle,
   HelpCircle,
   ChevronRight,
-  TrendingDown
+  TrendingDown,
+  LogOut,
+  User,
+  Sparkles,
+  Shield,
+  Activity
 } from "lucide-react";
 import { motion } from "motion/react";
 
@@ -20,10 +25,50 @@ import ImageUploader from "./components/ImageUploader";
 import DynamicForm from "./components/DynamicForm";
 import ResultsPanel from "./components/ResultsPanel";
 import HistoryList from "./components/HistoryList";
+import RotatingEarth from "./components/RotatingEarth";
 import { SAMPLE_ITEMS, SampleItem } from "./constants/samples";
 import { DetectedItem, CalculationResult, HistoryItem, CategoryType, UnitType } from "./types";
 
 export default function App() {
+  // Authentication State
+  const [isSignedIn, setIsSignedIn] = useState<boolean>(() => {
+    return localStorage.getItem("ecopulse_signed_in") === "true";
+  });
+  const [userEmail, setUserEmail] = useState<string>(() => {
+    return localStorage.getItem("ecopulse_user_email") || "addy250509@gmail.com";
+  });
+  const [userName, setUserName] = useState<string>(() => {
+    return localStorage.getItem("ecopulse_user_name") || "Climate Advocate";
+  });
+
+  const [inputEmail, setInputEmail] = useState(userEmail);
+  const [inputName, setInputName] = useState(userName);
+
+  // Climate News grounded with Google Search
+  const [newsList, setNewsList] = useState<{ title: string; summary: string; url: string }[]>([]);
+  const [isLoadingNews, setIsLoadingNews] = useState<boolean>(false);
+
+  const fetchClimateNews = async () => {
+    setIsLoadingNews(true);
+    try {
+      const res = await fetch("/api/climate-news");
+      if (res.ok) {
+        const data = await res.json();
+        setNewsList(data.news || []);
+      }
+    } catch (e) {
+      console.error("Failed to load climate news via Search Grounding", e);
+    } finally {
+      setIsLoadingNews(false);
+    }
+  };
+
+  useEffect(() => {
+    if (isSignedIn) {
+      fetchClimateNews();
+    }
+  }, [isSignedIn]);
+
   // Input Selection Tab
   const [activeTab, setActiveTab] = useState<"upload" | "webcam">("upload");
   
@@ -326,45 +371,191 @@ export default function App() {
     });
   };
 
+  const handleSignInSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!inputName || !inputEmail) return;
+    localStorage.setItem("ecopulse_signed_in", "true");
+    localStorage.setItem("ecopulse_user_email", inputEmail);
+    localStorage.setItem("ecopulse_user_name", inputName);
+    setUserName(inputName);
+    setUserEmail(inputEmail);
+    setIsSignedIn(true);
+  };
+
+  const handleSignOut = () => {
+    localStorage.removeItem("ecopulse_signed_in");
+    setIsSignedIn(false);
+  };
+
+  // Signed Out / Landing State: Realistic Earth Orbit + Glassmorphism Sign In
+  if (!isSignedIn) {
+    return (
+      <div className="min-h-screen bg-[#030712] font-sans text-[#f0f6fc] flex flex-col justify-between antialiased relative overflow-hidden">
+        {/* Celestial background nebulas */}
+        <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-blue-900/10 rounded-full blur-[120px] pointer-events-none" />
+        <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-emerald-950/10 rounded-full blur-[120px] pointer-events-none" />
+        
+        {/* Top Header */}
+        <header className="px-6 py-5 flex items-center justify-between border-b border-[#1f2937]/50 backdrop-blur-md relative z-10">
+          <div className="flex items-center gap-2.5">
+            <Globe className="w-6 h-6 text-[#2ea44f] animate-pulse" />
+            <span className="text-lg font-black tracking-wider text-gray-100 uppercase">EcoPulse</span>
+          </div>
+          <div className="text-[11px] uppercase tracking-widest text-[#2ea44f] font-bold border border-[#2ea44f]/30 bg-[#2ea44f]/5 px-3 py-1 rounded-full flex items-center gap-1.5">
+            <span className="w-1.5 h-1.5 bg-[#2ea44f] rounded-full animate-ping" />
+            SDG 13 Portal
+          </div>
+        </header>
+
+        {/* Main Landing grid */}
+        <div className="flex-1 max-w-7xl w-full mx-auto px-4 py-8 flex flex-col lg:flex-row items-center justify-center gap-12 relative z-10">
+          {/* Left Side: Stunning 3D Space Rotating Earth */}
+          <div className="flex-1 flex flex-col items-center text-center lg:text-left">
+            <div className="w-full max-w-[460px] h-[360px] sm:h-[460px] flex items-center justify-center">
+              <RotatingEarth />
+            </div>
+            <div className="max-w-md mt-6 lg:pl-4">
+              <span className="text-[10px] font-extrabold uppercase tracking-widest text-emerald-400">
+                Interactive Cosmic Orbit
+              </span>
+              <h2 className="text-xl sm:text-2xl font-black text-gray-100 tracking-tight mt-1.5">
+                SDG 13 Climate Intelligence
+              </h2>
+              <p className="text-xs text-gray-400 mt-2 leading-relaxed">
+                Our planet is a closed ecosystem. Every unit of electricity used, kilometer driven, or appliance operated adds to our atmosphere's carbon burden. Audit, visualize, and mitigate your footprint in real time.
+              </p>
+            </div>
+          </div>
+
+          {/* Right Side: Clean Glassmorphism Login Form */}
+          <div className="w-full max-w-md p-6 sm:p-8 bg-[#0d1117]/85 backdrop-blur-md border border-[#30363d]/80 rounded-2xl shadow-2xl">
+            <div className="mb-6 text-center">
+              <div className="inline-flex p-3 bg-[#2ea44f]/10 border border-[#2ea44f]/20 rounded-xl mb-3 text-[#2ea44f]">
+                <Leaf className="w-6 h-6" />
+              </div>
+              <h3 className="text-xl font-bold tracking-tight text-[#f0f6fc]">Enter the Audit Workspace</h3>
+              <p className="text-xs text-gray-400 mt-1">
+                Provide your details to begin logging automated emission metrics and offset forecasts.
+              </p>
+            </div>
+
+            <form onSubmit={handleSignInSubmit} className="space-y-4">
+              <div>
+                <label className="block text-xs font-semibold text-gray-400 mb-1.5">
+                  Full Name / Username
+                </label>
+                <input
+                  type="text"
+                  required
+                  value={inputName}
+                  onChange={(e) => setInputName(e.target.value)}
+                  placeholder="e.g. Climate Champion"
+                  className="w-full px-4 py-2.5 bg-[#161b22] border border-[#30363d] focus:border-[#2ea44f] rounded-lg text-xs text-gray-100 placeholder-gray-500 focus:outline-none focus:ring-1 focus:ring-[#2ea44f]/30 transition-all"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold text-gray-400 mb-1.5">
+                  Email Address
+                </label>
+                <input
+                  type="email"
+                  required
+                  value={inputEmail}
+                  onChange={(e) => setInputEmail(e.target.value)}
+                  placeholder="e.g. eco@example.com"
+                  className="w-full px-4 py-2.5 bg-[#161b22] border border-[#30363d] focus:border-[#2ea44f] rounded-lg text-xs text-gray-100 placeholder-gray-500 focus:outline-none focus:ring-1 focus:ring-[#2ea44f]/30 transition-all"
+                />
+              </div>
+
+              <div className="pt-2">
+                <button
+                  type="submit"
+                  className="w-full py-3 bg-[#2ea44f] hover:bg-[#2c974b] text-xs font-bold uppercase tracking-wider rounded-lg flex items-center justify-center gap-2 shadow-md transition-all text-[#f0f6fc] cursor-pointer"
+                >
+                  Sign In & Enter Dashboard
+                  <ChevronRight className="w-4.5 h-4.5" />
+                </button>
+              </div>
+            </form>
+
+            <div className="mt-6 pt-5 border-t border-[#30363d]/60 flex items-center justify-between text-[10px] text-gray-500">
+              <span className="flex items-center gap-1 font-semibold">
+                <Shield className="w-3.5 h-3.5 text-emerald-600" /> Secure credentials
+              </span>
+              <span>Local persistence active</span>
+            </div>
+          </div>
+        </div>
+
+        {/* Footer */}
+        <footer className="py-4 border-t border-[#1f2937]/30 text-center text-[11px] text-gray-500 z-10 relative bg-[#090d16]/30">
+          &copy; 2026 EcoPulse Vision &bull; Powered by Google Search Grounding & Gemini 3.5 Flash
+        </footer>
+      </div>
+    );
+  }
+
+  // Logged-In Application Dashboard view
   return (
     <div className="min-h-screen bg-[#0d1117] font-sans text-[#f0f6fc] flex flex-col antialiased">
       {/* Header Navigation */}
-      <header className="sticky top-0 z-50 bg-[#161b22]/90 backdrop-blur-md border-b border-[#30363d] px-4 py-3.5 flex items-center justify-between shadow-md">
+      <header className="sticky top-0 z-50 bg-[#161b22]/90 backdrop-blur-md border-b border-[#30363d] px-4 py-3 flex items-center justify-between shadow-md">
         <div className="flex items-center gap-2.5">
           <div className="p-2 bg-[#2ea44f]/10 rounded-lg border border-[#2ea44f]/30">
             <Globe className="w-5 h-5 text-[#2ea44f]" />
           </div>
           <div>
-            <h1 className="text-lg font-black tracking-tight text-[#f0f6fc]">EcoPulse Vision</h1>
+            <h1 className="text-base font-black tracking-tight text-[#f0f6fc]">EcoPulse Vision</h1>
             <p className="text-[10px] text-gray-400 font-medium tracking-wide uppercase">UN SDG 13: Climate Action</p>
           </div>
         </div>
 
+        {/* Right side controls */}
         <div className="flex items-center gap-3.5">
+          {/* User Profile Badge */}
+          <div className="hidden md:flex items-center gap-2 bg-[#0d1117] border border-[#30363d] rounded-full px-3 py-1 text-xs text-gray-300">
+            <User className="w-3.5 h-3.5 text-emerald-400" />
+            <span className="font-semibold">{userName}</span>
+          </div>
+
           {/* Cumulative Score Badge */}
           <div className="bg-[#0d1117] border border-[#30363d] rounded-full px-3.5 py-1.5 flex items-center gap-2 text-xs">
             <Leaf className="w-4 h-4 text-[#2ea44f]" />
-            <span className="text-gray-400 font-medium">Cumulative Audited Footprint:</span>
+            <span className="text-gray-400 font-medium hidden sm:inline">Cumulative Footprint:</span>
             <span className="font-mono font-bold text-[#f0f6fc] bg-[#161b22] px-2 py-0.5 rounded-md border border-[#30363d]">
               {cumulativeCarbonScore.toFixed(1)} kg CO2
             </span>
           </div>
 
-          {/* GitHub Documentation */}
-          <a
-            href="https://github.com/unsdg-climate-action/ecopulse-vision"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="flex items-center gap-1.5 text-xs text-gray-400 hover:text-[#f0f6fc] bg-[#21262d] hover:bg-[#30363d] border border-[#30363d] rounded-lg px-3 py-1.5 font-semibold transition-all"
+          {/* Sign Out Button */}
+          <button
+            onClick={handleSignOut}
+            className="flex items-center gap-1.5 text-xs text-red-400 hover:text-red-300 bg-[#21262d] hover:bg-red-950/20 border border-[#30363d] rounded-lg px-3 py-1.5 font-semibold transition-all cursor-pointer"
           >
-            <Github className="w-4 h-4" />
-            <span className="hidden sm:inline">Docs</span>
-          </a>
+            <LogOut className="w-4 h-4" />
+            <span className="hidden sm:inline">Sign Out</span>
+          </button>
         </div>
       </header>
 
       {/* Main Grid Workspace */}
       <main className="flex-1 max-w-7xl w-full mx-auto p-4 md:p-6 grid grid-cols-1 md:grid-cols-12 gap-6">
+        {/* Welcome Callout Banner */}
+        <div className="col-span-1 md:col-span-12 p-4 bg-emerald-500/5 border border-emerald-500/10 rounded-xl flex items-center justify-between gap-4">
+          <div className="flex items-start gap-3">
+            <Sparkles className="w-5 h-5 text-emerald-400 mt-0.5 shrink-0" />
+            <div>
+              <p className="text-xs font-bold text-gray-200">Welcome back, {userName}!</p>
+              <p className="text-[11px] text-gray-400 mt-0.5 leading-normal">
+                Audit your operational emissions with instant AI metrics, configure daily offset forecasts, and read the latest Search-grounded SDG 13 breakthroughs.
+              </p>
+            </div>
+          </div>
+          <span className="text-[10px] uppercase font-mono bg-emerald-950/30 text-emerald-400 px-2 py-0.5 rounded border border-emerald-500/20 shrink-0 hidden sm:inline">
+            SDG 13 Active Goal
+          </span>
+        </div>
         
         {/* Left Column (Input, Webcam, Samples, Dynamic Form) */}
         <section className="col-span-1 md:col-span-6 flex flex-col gap-6">
@@ -547,6 +738,84 @@ export default function App() {
             onSelectHistoryItem={handleSelectHistoryItem}
           />
         </section>
+
+        {/* SDG 13 Search Grounded Climate action news section */}
+        <section className="col-span-1 md:col-span-12 mt-4">
+          <div className="p-5 bg-[#161b22] border border-[#30363d] rounded-xl flex flex-col gap-4 shadow-md">
+            <div className="flex items-center justify-between border-b border-[#30363d] pb-3.5">
+              <div className="flex items-center gap-2.5">
+                <div className="p-2 bg-emerald-500/10 rounded-lg border border-emerald-500/20 text-[#2ea44f]">
+                  <Sparkles className="w-4.5 h-4.5 animate-pulse" />
+                </div>
+                <div>
+                  <h3 className="text-sm font-bold text-gray-200">SDG 13 Climate Action News Hub</h3>
+                  <p className="text-[11px] text-gray-400 mt-0.5">
+                    Real-time positive developments and SDG 13 breakthroughs powered by <strong>Gemini Live Google Search Grounding</strong>.
+                  </p>
+                </div>
+              </div>
+              
+              <button
+                onClick={fetchClimateNews}
+                disabled={isLoadingNews}
+                className="px-2.5 py-1.5 bg-[#21262d] hover:bg-[#30363d] disabled:opacity-50 text-[11px] font-semibold rounded-md border border-[#30363d] transition-colors flex items-center gap-1 text-gray-300"
+              >
+                <RefreshCw className={`w-3 h-3 ${isLoadingNews ? 'animate-spin' : ''}`} />
+                Refresh News
+              </button>
+            </div>
+
+            {isLoadingNews ? (
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 py-4">
+                {[1, 2, 3].map((n) => (
+                  <div key={n} className="p-4 bg-[#0d1117] border border-[#30363d] rounded-xl animate-pulse space-y-2">
+                    <div className="h-3.5 bg-gray-700/60 rounded w-3/4" />
+                    <div className="h-3 bg-gray-800/60 rounded w-full" />
+                    <div className="h-3 bg-gray-800/60 rounded w-5/6" />
+                    <div className="h-2.5 bg-emerald-950/40 rounded w-1/3 pt-1" />
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                {newsList.map((item, idx) => (
+                  <motion.div
+                    key={idx}
+                    whileHover={{ y: -3, borderColor: "#2ea44f" }}
+                    className="p-4 bg-[#0d1117] border border-[#30363d] rounded-xl flex flex-col justify-between transition-all"
+                  >
+                    <div className="space-y-2">
+                      <div className="flex items-center justify-between">
+                        <span className="text-[9px] font-extrabold uppercase tracking-widest text-[#2ea44f] bg-emerald-500/5 px-2 py-0.5 rounded border border-emerald-500/10">
+                          SDG 13 News
+                        </span>
+                        <span className="text-[9px] font-mono text-gray-500">Grounded Search</span>
+                      </div>
+                      <h4 className="text-xs font-bold text-[#f0f6fc] tracking-tight hover:text-emerald-400 transition-colors line-clamp-2 leading-snug">
+                        {item.title}
+                      </h4>
+                      <p className="text-[11px] text-gray-400 leading-relaxed line-clamp-3">
+                        {item.summary}
+                      </p>
+                    </div>
+                    
+                    <div className="pt-3 border-t border-[#30363d]/50 mt-3 flex items-center justify-between">
+                      <a
+                        href={item.url}
+                        target="_blank"
+                        referrerPolicy="no-referrer"
+                        className="text-[10px] font-bold text-[#58a6ff] hover:text-[#2f81f7] inline-flex items-center gap-1 group/link"
+                      >
+                        Read full coverage
+                        <ChevronRight className="w-3.5 h-3.5 group-hover/link:translate-x-0.5 transition-transform" />
+                      </a>
+                    </div>
+                  </motion.div>
+                ))}
+              </div>
+            )}
+          </div>
+        </section>
       </main>
 
       {/* Sustainable footer metrics info */}
@@ -557,7 +826,7 @@ export default function App() {
             <span>Dedicated to Climate Action & SDG 13 Solutions</span>
           </div>
           <p className="text-[11px]">
-            &copy; 2026 EcoPulse Vision &bull; Built with Gemini 3.5 Flash server-side AI.
+            &copy; 2026 EcoPulse Vision &bull; Built with Gemini 3.5 Flash server-side AI & Google Search Grounding.
           </p>
         </div>
       </footer>

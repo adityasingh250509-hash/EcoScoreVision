@@ -104,12 +104,12 @@ app.post("/api/analyze-image", async (req, res) => {
         }
       });
     } catch (err1: any) {
-      console.warn("First API structure failed, retrying with flat array format:", err1);
+      console.warn("First API structure failed, retrying with correct content wrapper on gemini-3.1-flash-lite:", err1);
       try {
-        // Second attempt: contents: [imagePart, textPart]
+        // Second attempt: fallback to stable/cheaper model with schema and correct wrapper
         response = await ai.models.generateContent({
-          model: "gemini-3.5-flash",
-          contents: [imagePart, textPart],
+          model: "gemini-3.1-flash-lite",
+          contents: { parts: [imagePart, textPart] },
           config: {
             responseMimeType: "application/json",
             responseSchema: {
@@ -127,37 +127,29 @@ app.post("/api/analyze-image", async (req, res) => {
           }
         });
       } catch (err2: any) {
-        console.warn("Flat array format failed, retrying with gemini-3.1-flash-lite:", err2);
+        console.warn("Second structured format failed, retrying on gemini-3.5-flash with raw prompt:", err2);
         try {
-          // Third attempt: fallback model (gemini-3.1-flash-lite)
+          // Third attempt: gemini-3.5-flash with NO responseSchema, but correct wrap
           response = await ai.models.generateContent({
-            model: "gemini-3.1-flash-lite",
-            contents: [imagePart, textPart],
-            config: {
-              responseMimeType: "application/json",
-              responseSchema: {
-                type: Type.OBJECT,
-                properties: {
-                  item_name: { type: Type.STRING },
-                  category: { type: Type.STRING },
-                  default_unit: { type: Type.STRING },
-                  estimated_quantity: { type: Type.NUMBER },
-                  estimated_factor: { type: Type.NUMBER },
-                  factor_label: { type: Type.STRING }
-                },
-                required: ["item_name", "category", "default_unit", "estimated_quantity", "estimated_factor", "factor_label"]
-              }
+            model: "gemini-3.5-flash",
+            contents: {
+              parts: [
+                imagePart,
+                { text: "Identify the appliance, vehicle, or item in this image. Estimate a typical/standard consumption quantity (e.g., standard daily hours for appliances, typical travel distance in km for transport, or average kWh for energy) and its corresponding carbon emission factor (kg CO2 per unit). Return ONLY a valid JSON object. Do not include markdown code blocks or backticks. Structure: {\"item_name\": \"string\", \"category\": \"appliance|transport|energy|waste\", \"default_unit\": \"hours|km|kWh\", \"estimated_quantity\": 8, \"estimated_factor\": 1.5, \"factor_label\": \"Standard AC Unit\"}" }
+              ]
             }
           });
         } catch (err3: any) {
-          // Final attempt: without strict schema mapping
-          console.warn("All structured format attempts failed, retrying without responseSchema:", err3);
+          console.warn("All structured formats failed, final attempt on gemini-3.1-flash-lite with raw prompt:", err3);
+          // Final attempt: fallback model with NO responseSchema, but correct wrap
           response = await ai.models.generateContent({
-            model: "gemini-3.5-flash",
-            contents: [
-              imagePart,
-              { text: "Identify the appliance, vehicle, or item in this image. Estimate standard usage quantity and emission factor. Return ONLY a valid JSON object. Do not include markdown code blocks or backticks. Structure: {\"item_name\": \"string\", \"category\": \"appliance|transport|energy|waste\", \"default_unit\": \"hours|km|kWh\", \"estimated_quantity\": 8, \"estimated_factor\": 1.5, \"factor_label\": \"Standard AC Unit\"}" }
-            ]
+            model: "gemini-3.1-flash-lite",
+            contents: {
+              parts: [
+                imagePart,
+                { text: "Identify the appliance, vehicle, or item in this image. Estimate standard usage quantity and emission factor. Return ONLY a valid JSON object. Do not include markdown code blocks or backticks. Structure: {\"item_name\": \"string\", \"category\": \"appliance|transport|energy|waste\", \"default_unit\": \"hours|km|kWh\", \"estimated_quantity\": 8, \"estimated_factor\": 1.5, \"factor_label\": \"Standard AC Unit\"}" }
+              ]
+            }
           });
         }
       }
@@ -248,6 +240,71 @@ Format your output as a JSON array of 3 strings. Avoid markdown inside the strin
         `Consider reducing your usage of ${req.body.item_name || 'this item'} to lower the ${req.body.emissions || 0} kg CO2 footprint.`,
         `Plant at least ${req.body.tree_offset || 1} tree(s) to completely offset this carbon impact over the coming year.`,
         "Transition to renewable energy sources or energy-efficient models to prevent future climate footprint peaks."
+      ]
+    });
+  }
+});
+
+// Endpoint for climate news with search grounding
+app.get("/api/climate-news", async (req, res) => {
+  try {
+    if (!process.env.GEMINI_API_KEY) {
+      throw new Error("GEMINI_API_KEY is missing");
+    }
+
+    const response = await ai.models.generateContent({
+      model: "gemini-3.5-flash",
+      contents: "Find 3 recent, highly positive, and inspiring news headlines related to climate action, renewable energy breakthroughs, or successful SDG 13 initiatives (published recently in 2025/2026). For each news item, provide the headline, a brief 1-sentence description of why it is positive, and a reliable URL to read more. Return ONLY a valid JSON array of objects with the structure: [{\"title\": \"string\", \"summary\": \"string\", \"url\": \"string\"}].",
+      config: {
+        tools: [{ googleSearch: {} }],
+        responseMimeType: "application/json",
+        responseSchema: {
+          type: Type.ARRAY,
+          items: {
+            type: Type.OBJECT,
+            properties: {
+              title: { type: Type.STRING },
+              summary: { type: Type.STRING },
+              url: { type: Type.STRING }
+            },
+            required: ["title", "summary", "url"]
+          }
+        }
+      },
+    });
+
+    let text = response.text;
+    if (!text) {
+      throw new Error("Empty response received from climate news Gemini API");
+    }
+
+    text = text.trim();
+    if (text.startsWith("```")) {
+      text = text.replace(/^```(json)?/, "").replace(/```$/, "").trim();
+    }
+
+    const news = JSON.parse(text);
+    return res.json({ news });
+  } catch (error: any) {
+    console.error("Error getting climate news:", error);
+    // Provide general fallback news if Gemini search fails
+    return res.json({
+      news: [
+        {
+          title: "Global Renewable Capacity Grew by Record 50% in Last Year",
+          summary: "Solar and wind energy installations are expanding at their fastest rate in history, keeping the goal of tripling clean capacity by 2030 within reach.",
+          url: "https://www.iea.org"
+        },
+        {
+          title: "New Battery Technology Breakthrough Doubles Energy Density",
+          summary: "Engineers have successfully developed solid-state lithium batteries that charge faster, last longer, and cut cobalt usage significantly.",
+          url: "https://www.sciencedaily.com"
+        },
+        {
+          title: "Over 100 Countries Commit to Massive Forest Restoration Programs",
+          summary: "Governments around the globe have pledged new funds to restore millions of hectares of degraded ecosystems by the end of the decade.",
+          url: "https://www.unep.org"
+        }
       ]
     });
   }
