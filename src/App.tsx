@@ -48,10 +48,11 @@ export default function App() {
   const [newsList, setNewsList] = useState<{ title: string; summary: string; url: string }[]>([]);
   const [isLoadingNews, setIsLoadingNews] = useState<boolean>(false);
 
-  const fetchClimateNews = async () => {
+  const fetchClimateNews = async (force: boolean = false) => {
     setIsLoadingNews(true);
     try {
-      const res = await fetch("/api/climate-news");
+      const url = force ? "/api/climate-news?refresh=true" : "/api/climate-news";
+      const res = await fetch(url);
       if (res.ok) {
         const data = await res.json();
         setNewsList(data.news || []);
@@ -129,8 +130,9 @@ export default function App() {
   };
 
   // Process selected image with backend Gemini Vision endpoint
-  const handleProcessImage = async () => {
-    if (!selectedImage) return;
+  const handleProcessImage = async (imageToProcess?: string) => {
+    const img = imageToProcess || selectedImage;
+    if (!img) return;
     
     setIsAnalyzing(true);
     setAnalysisError(null);
@@ -142,7 +144,7 @@ export default function App() {
       const response = await fetch("/api/analyze-image", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ image: selectedImage }),
+        body: JSON.stringify({ image: img }),
       });
 
       if (!response.ok) {
@@ -171,6 +173,16 @@ export default function App() {
     } finally {
       setIsAnalyzing(false);
     }
+  };
+
+  // Automatically trigger processing and calculation when an image is uploaded or captured
+  const handleAutoAnalyzeImage = async (img: string) => {
+    setSelectedImage(img);
+    setDetectedItem(null);
+    setCalculationResult(null);
+    setAnalysisError(null);
+    setCalcInputs(null);
+    await handleProcessImage(img);
   };
 
   // Run emissions engine calculation + trigger custom AI advice
@@ -604,12 +616,7 @@ export default function App() {
             {/* Selected intake method */}
             {activeTab === "upload" ? (
               <ImageUploader
-                onImageSelected={(img) => {
-                  setSelectedImage(img);
-                  setDetectedItem(null);
-                  setCalculationResult(null);
-                  setAnalysisError(null);
-                }}
+                onImageSelected={handleAutoAnalyzeImage}
                 selectedImage={selectedImage}
                 onClear={() => {
                   setSelectedImage(null);
@@ -641,44 +648,33 @@ export default function App() {
                 </div>
               ) : (
                 <WebcamScanner
-                  onCapture={(img) => {
-                    setSelectedImage(img);
-                    setDetectedItem(null);
-                    setCalculationResult(null);
-                    setAnalysisError(null);
-                  }}
+                  onCapture={handleAutoAnalyzeImage}
                 />
               )
             )}
 
-            {/* Submit to AI Button */}
-            {selectedImage && !detectedItem && (
-              <motion.button
-                whileHover={{ scale: 1.01 }}
-                whileTap={{ scale: 0.99 }}
-                onClick={handleProcessImage}
-                disabled={isAnalyzing}
-                className="w-full py-2.5 bg-[#2ea44f] hover:bg-[#2c974b] disabled:bg-gray-600 disabled:cursor-not-allowed text-xs font-bold uppercase tracking-wider rounded-lg flex items-center justify-center gap-2 shadow-md transition-colors text-[#f0f6fc]"
-              >
-                {isAnalyzing ? (
-                  <>
-                    <RefreshCw className="w-4 h-4 animate-spin" />
-                    Analyzing item with Gemini AI...
-                  </>
-                ) : (
-                  <>
-                    Process Image with AI
-                    <ChevronRight className="w-4.5 h-4.5" />
-                  </>
-                )}
-              </motion.button>
+            {/* Automated Analysis Status Indicator */}
+            {isAnalyzing && (
+              <div className="w-full py-3 bg-[#2ea44f]/10 border border-[#2ea44f]/20 text-[#2ea44f] rounded-lg text-xs font-bold uppercase tracking-wider flex items-center justify-center gap-2">
+                <RefreshCw className="w-4 h-4 animate-spin" />
+                Analyzing snap & giving score automatically...
+              </div>
             )}
 
-            {/* Error messaging */}
+            {/* Error messaging & Retry Button */}
             {analysisError && (
-              <div className="p-3 bg-red-950/30 border border-red-500/20 text-red-400 rounded-lg text-xs flex items-start gap-2">
-                <AlertCircle className="w-4 h-4 mt-0.5 shrink-0" />
-                <span>{analysisError}</span>
+              <div className="space-y-3">
+                <div className="p-3 bg-red-950/30 border border-red-500/20 text-red-400 rounded-lg text-xs flex items-start gap-2">
+                  <AlertCircle className="w-4 h-4 mt-0.5 shrink-0" />
+                  <span>{analysisError}</span>
+                </div>
+                <button
+                  onClick={() => handleProcessImage()}
+                  className="w-full py-2.5 bg-red-500/15 hover:bg-red-500/25 border border-red-500/30 text-red-400 text-xs font-bold uppercase tracking-wider rounded-lg flex items-center justify-center gap-2 transition-colors cursor-pointer"
+                >
+                  <RefreshCw className="w-3.5 h-3.5" />
+                  Retry Automated Analysis
+                </button>
               </div>
             )}
 
@@ -756,7 +752,7 @@ export default function App() {
               </div>
               
               <button
-                onClick={fetchClimateNews}
+                onClick={() => fetchClimateNews(true)}
                 disabled={isLoadingNews}
                 className="px-2.5 py-1.5 bg-[#21262d] hover:bg-[#30363d] disabled:opacity-50 text-[11px] font-semibold rounded-md border border-[#30363d] transition-colors flex items-center gap-1 text-gray-300"
               >

@@ -36,7 +36,13 @@ export default function WebcamScanner({ onCapture, onClose }: WebcamScannerProps
       console.error("Webcam access error:", err);
       if (err.message === "NotSupportedError") {
         setError("Your browser or preview environment does not support video capture. Please open the application in a new tab (by clicking the button in the top right) or use the 'File Upload' tab instead.");
-      } else if (err.name === "NotAllowedError" || err.name === "PermissionDeniedError" || err.message?.includes("Permission denied")) {
+      } else if (
+        err.name === "NotAllowedError" || 
+        err.name === "PermissionDeniedError" || 
+        err.name?.toLowerCase().includes("permission") ||
+        err.message?.toLowerCase().includes("permission") ||
+        err.message?.includes("Permission denied")
+      ) {
         setError("Camera permission was denied. If you are using the in-editor preview iframe, please click 'Open in a new tab' at the top right of the preview to grant camera access, or use the 'File Upload' tab to process an image.");
       } else {
         setError("Unable to access camera. Please verify permissions, try opening the app in a new tab, or upload an image instead.");
