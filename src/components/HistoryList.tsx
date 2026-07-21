@@ -1,16 +1,19 @@
 import React from "react";
 import { HistoryItem, CategoryType } from "../types";
-import { Trash2, Wind, Car, Zap, RefreshCw, Clock, History } from "lucide-react";
+import { Trash2, Wind, Car, Zap, RefreshCw, Clock, History, Download } from "lucide-react";
 import { motion } from "motion/react";
+import { generatePDFReport } from "../utils/pdfGenerator";
 
 interface HistoryListProps {
   history: HistoryItem[];
+  userName?: string;
   onClearHistory: () => void;
   onSelectHistoryItem: (item: HistoryItem) => void;
 }
 
 export default function HistoryList({
   history,
+  userName = "Climate Advocate",
   onClearHistory,
   onSelectHistoryItem,
 }: HistoryListProps) {
@@ -35,12 +38,20 @@ export default function HistoryList({
           <h3 className="text-sm font-semibold">Audit History</h3>
         </div>
         {history.length > 0 && (
-          <button
-            onClick={onClearHistory}
-            className="text-[11px] text-red-400 hover:text-red-500 hover:underline flex items-center gap-1 font-medium transition-colors"
-          >
-            <Trash2 className="w-3.5 h-3.5" /> Purge Scans
-          </button>
+          <div className="flex items-center gap-3">
+            <button
+              onClick={() => generatePDFReport(history, userName)}
+              className="text-[11px] text-[#2ea44f] hover:text-emerald-400 flex items-center gap-1 font-semibold transition-colors bg-[#2ea44f]/10 border border-[#2ea44f]/30 px-2 py-1 rounded-md"
+            >
+              <Download className="w-3.5 h-3.5" /> Download Report
+            </button>
+            <button
+              onClick={onClearHistory}
+              className="text-[11px] text-red-400 hover:text-red-500 hover:underline flex items-center gap-1 font-medium transition-colors"
+            >
+              <Trash2 className="w-3.5 h-3.5" /> Purge Scans
+            </button>
+          </div>
         )}
       </div>
 

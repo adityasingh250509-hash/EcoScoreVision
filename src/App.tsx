@@ -730,6 +730,7 @@ export default function App() {
 
           <HistoryList
             history={history}
+            userName={userName}
             onClearHistory={handleClearHistory}
             onSelectHistoryItem={handleSelectHistoryItem}
           />

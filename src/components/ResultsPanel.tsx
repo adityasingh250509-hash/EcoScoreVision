@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { 
   Leaf, 
   Info, 
@@ -9,7 +9,9 @@ import {
   TrendingUp,
   Award,
   Activity,
-  Calendar
+  Calendar,
+  Volume2,
+  VolumeX
 } from "lucide-react";
 import { motion } from "motion/react";
 import { CalculationResult } from "../types";
@@ -45,6 +47,48 @@ export default function ResultsPanel({
       </div>
     );
   }
+
+  const [isSpeaking, setIsSpeaking] = useState(false);
+
+  useEffect(() => {
+    // Cancel any active speech when component unmounts or result changes
+    return () => {
+      if (typeof window !== "undefined" && window.speechSynthesis) {
+        window.speechSynthesis.cancel();
+      }
+    };
+  }, [result]);
+
+  const toggleSpeech = () => {
+    if (typeof window === "undefined" || !window.speechSynthesis) {
+      return;
+    }
+
+    if (isSpeaking) {
+      window.speechSynthesis.cancel();
+      setIsSpeaking(false);
+    } else {
+      window.speechSynthesis.cancel();
+      
+      const cleanAdvice = result?.advice || [];
+      if (cleanAdvice.length === 0) return;
+
+      const textToSpeak = `Here is your tailored AI mitigation advice. ${cleanAdvice.map((tip, idx) => `Tip ${idx + 1}: ${tip}`).join(". ")}`;
+      const utterance = new SpeechSynthesisUtterance(textToSpeak);
+
+      utterance.onend = () => {
+        setIsSpeaking(false);
+      };
+
+      utterance.onerror = (e) => {
+        console.error("SpeechSynthesis error:", e);
+        setIsSpeaking(false);
+      };
+
+      window.speechSynthesis.speak(utterance);
+      setIsSpeaking(true);
+    }
+  };
 
   // Calculate dynamic EcoScore (0-100) based on emissions
   // Lower emissions = higher score
@@ -115,11 +159,14 @@ export default function ResultsPanel({
   const optimizedAccumulated = months.map((_, i) => optimizedMonthly * (i + 1));
   const maxAccumulated = baselineAccumulated[11];
 
+  const animationKey = `${itemName}-${result.emissions}-${quantity}`;
+
   return (
     <motion.div
+      key={animationKey}
       initial={{ opacity: 0, y: 15 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.4 }}
+      transition={{ duration: 0.4, ease: "easeOut" }}
       className="flex flex-col gap-6 p-5 bg-[#161b22] border border-[#30363d] rounded-xl text-[#f0f6fc] shadow-lg"
     >
       {/* Title */}
@@ -463,11 +510,36 @@ export default function ResultsPanel({
 
       {/* AI Mitigation Advice Bullet Points */}
       <div className="flex flex-col gap-2.5">
-        <div className="flex items-center gap-1.5">
-          <Award className="w-4 h-4 text-[#2ea44f]" />
-          <h4 className="text-xs font-bold uppercase text-gray-400 tracking-wider">
-            Tailored AI Mitigation Advice
-          </h4>
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-1.5">
+            <Award className="w-4 h-4 text-[#2ea44f]" />
+            <h4 className="text-xs font-bold uppercase text-gray-400 tracking-wider">
+              Tailored AI Mitigation Advice
+            </h4>
+          </div>
+          {typeof window !== "undefined" && window.speechSynthesis && (
+            <button
+              onClick={toggleSpeech}
+              className={`flex items-center gap-1 px-2.5 py-1 text-[10px] font-semibold rounded-md border transition-all cursor-pointer ${
+                isSpeaking 
+                  ? "bg-red-500/10 border-red-500/30 text-red-400 hover:bg-red-500/20" 
+                  : "bg-[#2ea44f]/10 border-[#2ea44f]/30 text-[#2ea44f] hover:bg-[#2ea44f]/20"
+              }`}
+              title={isSpeaking ? "Stop Reading" : "Read Aloud"}
+            >
+              {isSpeaking ? (
+                <>
+                  <VolumeX className="w-3.5 h-3.5 animate-pulse" />
+                  <span>Stop Reading</span>
+                </>
+              ) : (
+                <>
+                  <Volume2 className="w-3.5 h-3.5" />
+                  <span>Read Aloud</span>
+                </>
+              )}
+            </button>
+          )}
         </div>
         <div className="flex flex-col gap-2">
           {result.advice.map((bullet, idx) => (
