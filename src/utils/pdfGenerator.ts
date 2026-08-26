@@ -1,6 +1,153 @@
 import { jsPDF } from "jspdf";
 import { HistoryItem } from "../types";
 
+export interface SingleAuditReportData {
+  itemName: string;
+  category: string;
+  quantity: number;
+  unit: string;
+  factorLabel: string;
+  emissions: number;
+  treeOffset: number;
+  status: "low" | "moderate" | "high";
+  advice: string[];
+  timestamp: string;
+}
+
+export function generateCarbonAuditReport(data: SingleAuditReportData) {
+  const doc = new jsPDF({
+    orientation: "portrait",
+    unit: "mm",
+    format: "a4",
+  });
+
+  const primaryColor = [46, 164, 79]; // #2ea44f
+  const darkColor = [22, 27, 34];    // #161b22
+  const grayColor = [100, 110, 120];
+
+  // Header Banner
+  doc.setFillColor(darkColor[0], darkColor[1], darkColor[2]);
+  doc.rect(0, 0, 210, 35, "F");
+
+  // Title
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(20);
+  doc.setTextColor(255, 255, 255);
+  doc.text("EcoPulse Vision", 15, 18);
+
+  // Subtitle
+  doc.setFont("helvetica", "normal");
+  doc.setFontSize(9);
+  doc.setTextColor(180, 190, 200);
+  doc.text("UN SDG 13: CLIMATE ACTION - INDIVIDUAL CARBON AUDIT CERTIFICATE", 15, 25);
+
+  // Timestamp
+  doc.setFontSize(8);
+  doc.text(`Generated: ${data.timestamp}`, 195, 18, { align: "right" });
+  doc.text(`Protocol: GHG Scope 1-3`, 195, 24, { align: "right" });
+
+  // Dividing line
+  doc.setDrawColor(primaryColor[0], primaryColor[1], primaryColor[2]);
+  doc.setLineWidth(1);
+  doc.line(0, 35, 210, 35);
+
+  let currentY = 48;
+
+  // Item Profile
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(14);
+  doc.setTextColor(darkColor[0], darkColor[1], darkColor[2]);
+  doc.text("Audited Object & Lifecycle Parameters", 15, currentY);
+
+  currentY += 8;
+  doc.setFillColor(245, 248, 245);
+  doc.rect(15, currentY, 180, 24, "F");
+  doc.setDrawColor(220, 230, 220);
+  doc.rect(15, currentY, 180, 24, "S");
+
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(11);
+  doc.setTextColor(darkColor[0], darkColor[1], darkColor[2]);
+  doc.text(`Item: ${data.itemName}`, 20, currentY + 7);
+
+  doc.setFont("helvetica", "normal");
+  doc.setFontSize(9);
+  doc.setTextColor(grayColor[0], grayColor[1], grayColor[2]);
+  doc.text(`Category: ${data.category.toUpperCase()}   |   Duration / Distance: ${data.quantity} ${data.unit}`, 20, currentY + 14);
+  doc.text(`Emissions Coefficient: ${data.factorLabel}`, 20, currentY + 20);
+
+  // KPI Metrics Section
+  currentY += 34;
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(14);
+  doc.setTextColor(darkColor[0], darkColor[1], darkColor[2]);
+  doc.text("Carbon Output & Botanical Mitigation", 15, currentY);
+
+  currentY += 8;
+  // Emissions Card
+  doc.setFillColor(240, 244, 241);
+  doc.rect(15, currentY, 85, 28, "F");
+  doc.setDrawColor(primaryColor[0], primaryColor[1], primaryColor[2]);
+  doc.setLineWidth(0.5);
+  doc.rect(15, currentY, 85, 28, "S");
+
+  doc.setFont("helvetica", "normal");
+  doc.setFontSize(8.5);
+  doc.setTextColor(grayColor[0], grayColor[1], grayColor[2]);
+  doc.text("TOTAL EMISSIONS GENERATED", 20, currentY + 8);
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(16);
+  doc.setTextColor(darkColor[0], darkColor[1], darkColor[2]);
+  doc.text(`${data.emissions.toFixed(2)} kg CO2`, 20, currentY + 20);
+
+  // Tree Offset Card
+  doc.setFillColor(240, 244, 241);
+  doc.rect(110, currentY, 85, 28, "F");
+  doc.rect(110, currentY, 85, 28, "S");
+
+  doc.setFont("helvetica", "normal");
+  doc.setFontSize(8.5);
+  doc.setTextColor(grayColor[0], grayColor[1], grayColor[2]);
+  doc.text("BOTANICAL OFFSET REQUIREMENT", 115, currentY + 8);
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(16);
+  doc.setTextColor(primaryColor[0], primaryColor[1], primaryColor[2]);
+  doc.text(`${data.treeOffset} Tree${data.treeOffset === 1 ? "" : "s"} / Year`, 115, currentY + 20);
+
+  // Tailored AI Mitigation Advice
+  currentY += 40;
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(13);
+  doc.setTextColor(darkColor[0], darkColor[1], darkColor[2]);
+  doc.text("Tailored AI Mitigation & Reduction Steps", 15, currentY);
+
+  currentY += 6;
+  doc.setFillColor(250, 252, 250);
+  doc.rect(15, currentY, 180, 45, "F");
+  doc.setDrawColor(primaryColor[0], primaryColor[1], primaryColor[2]);
+  doc.setLineWidth(0.5);
+  doc.rect(15, currentY, 180, 45, "S");
+
+  doc.setFont("helvetica", "normal");
+  doc.setFontSize(8.5);
+  doc.setTextColor(darkColor[0], darkColor[1], darkColor[2]);
+
+  let tipY = currentY + 8;
+  data.advice.forEach((tip, idx) => {
+    const lines = doc.splitTextToSize(`${idx + 1}. ${tip}`, 168);
+    doc.text(lines, 20, tipY);
+    tipY += (lines.length * 5) + 3;
+  });
+
+  // Footer
+  doc.setFont("helvetica", "italic");
+  doc.setFontSize(7.5);
+  doc.setTextColor(grayColor[0], grayColor[1], grayColor[2]);
+  doc.text("Certified by EcoPulse Multimodal Vision Intelligence under UN SDG 13 Climate Action frameworks.", 105, 285, { align: "center" });
+
+  doc.save(`EcoPulse-Audit-${data.itemName.replace(/\s+/g, "_")}.pdf`);
+}
+
 export function generatePDFReport(history: HistoryItem[], userName: string) {
   const doc = new jsPDF({
     orientation: "portrait",
@@ -11,43 +158,36 @@ export function generatePDFReport(history: HistoryItem[], userName: string) {
   const cumulativeCarbon = history.reduce((sum, item) => sum + item.emissions, 0);
   const totalTrees = history.reduce((sum, item) => sum + item.treeOffset, 0);
 
-  // Colors
-  const primaryColor = [46, 164, 79]; // Eco Green #2ea44f
-  const darkColor = [22, 27, 34];    // Dark Slate #161b22
-  const grayColor = [100, 110, 120];  // Slate gray
-  const bgLight = [245, 248, 245];   // Very soft green tint
+  const primaryColor = [46, 164, 79];
+  const darkColor = [22, 27, 34];
+  const grayColor = [100, 110, 120];
+  const bgLight = [245, 248, 245];
 
   // Header Banner
   doc.setFillColor(darkColor[0], darkColor[1], darkColor[2]);
   doc.rect(0, 0, 210, 35, "F");
 
-  // EcoPulse logo / icon
   doc.setFillColor(primaryColor[0], primaryColor[1], primaryColor[2]);
   doc.rect(15, 10, 8, 8, "F");
   
-  // Title
   doc.setFont("helvetica", "bold");
   doc.setFontSize(20);
   doc.setTextColor(255, 255, 255);
   doc.text("EcoPulse Vision", 28, 16);
 
-  // Subtitle
   doc.setFont("helvetica", "normal");
   doc.setFontSize(9);
   doc.setTextColor(180, 190, 200);
   doc.text("UN SDG 13: CLIMATE ACTION - PERSONAL CARBON AUDIT REPORT", 28, 22);
 
-  // Document Info (Right aligned in header)
   doc.setFontSize(8);
   doc.text(`Generated: ${new Date().toLocaleString()}`, 195, 15, { align: "right" });
   doc.text(`Auditor: ${userName}`, 195, 20, { align: "right" });
 
-  // Draw dividing line
   doc.setDrawColor(primaryColor[0], primaryColor[1], primaryColor[2]);
   doc.setLineWidth(1);
   doc.line(0, 35, 210, 35);
 
-  // ------------------ Summary Cards / KPI Block ------------------
   let currentY = 48;
   doc.setFont("helvetica", "bold");
   doc.setFontSize(14);
@@ -55,8 +195,7 @@ export function generatePDFReport(history: HistoryItem[], userName: string) {
   doc.text("Executive Carbon Footprint Summary", 15, currentY);
 
   currentY += 6;
-  // Card 1: Total Carbon Footprint
-  doc.setFillColor(240, 244, 241); // light sage
+  doc.setFillColor(240, 244, 241);
   doc.rect(15, currentY, 85, 25, "F");
   doc.setDrawColor(primaryColor[0], primaryColor[1], primaryColor[2]);
   doc.setLineWidth(0.5);
@@ -71,8 +210,7 @@ export function generatePDFReport(history: HistoryItem[], userName: string) {
   doc.setTextColor(darkColor[0], darkColor[1], darkColor[2]);
   doc.text(`${cumulativeCarbon.toFixed(1)} kg CO2`, 20, currentY + 18);
 
-  // Card 2: Tree Offset Target
-  doc.setFillColor(240, 244, 241); // light sage
+  doc.setFillColor(240, 244, 241);
   doc.rect(110, currentY, 85, 25, "F");
   doc.rect(110, currentY, 85, 25, "S");
 
@@ -85,7 +223,7 @@ export function generatePDFReport(history: HistoryItem[], userName: string) {
   doc.setTextColor(primaryColor[0], primaryColor[1], primaryColor[2]);
   doc.text(`${totalTrees} Tree${totalTrees === 1 ? "" : "s"} Required`, 115, currentY + 18);
 
-  // ------------------ Table Section ------------------
+  // Table Section
   currentY += 38;
   doc.setFont("helvetica", "bold");
   doc.setFontSize(12);
@@ -93,7 +231,6 @@ export function generatePDFReport(history: HistoryItem[], userName: string) {
   doc.text("Audited Sessions & Snapshots", 15, currentY);
 
   currentY += 5;
-  // Table Header
   doc.setFillColor(darkColor[0], darkColor[1], darkColor[2]);
   doc.rect(15, currentY, 180, 8, "F");
 
@@ -108,18 +245,15 @@ export function generatePDFReport(history: HistoryItem[], userName: string) {
 
   currentY += 8;
 
-  // Rows
   doc.setFont("helvetica", "normal");
   doc.setFontSize(8);
   doc.setTextColor(darkColor[0], darkColor[1], darkColor[2]);
 
   history.forEach((item, index) => {
-    // Check page overflow
     if (currentY > 265) {
       doc.addPage();
       currentY = 20;
       
-      // Reprint header on new page
       doc.setFillColor(darkColor[0], darkColor[1], darkColor[2]);
       doc.rect(15, currentY, 180, 8, "F");
       doc.setFont("helvetica", "bold");
@@ -136,7 +270,6 @@ export function generatePDFReport(history: HistoryItem[], userName: string) {
       doc.setTextColor(darkColor[0], darkColor[1], darkColor[2]);
     }
 
-    // Alternating background colors
     if (index % 2 === 0) {
       doc.setFillColor(248, 249, 250);
     } else {
@@ -144,7 +277,6 @@ export function generatePDFReport(history: HistoryItem[], userName: string) {
     }
     doc.rect(15, currentY, 180, 8, "F");
 
-    // Border line below each row
     doc.setDrawColor(230, 235, 240);
     doc.setLineWidth(0.1);
     doc.line(15, currentY + 8, 195, currentY + 8);
@@ -164,7 +296,6 @@ export function generatePDFReport(history: HistoryItem[], userName: string) {
     currentY += 8;
   });
 
-  // ------------------ Actions & Guidelines Section ------------------
   currentY += 12;
   if (currentY > 240) {
     doc.addPage();
@@ -189,7 +320,6 @@ export function generatePDFReport(history: HistoryItem[], userName: string) {
   doc.text("2. Lower transport emissions by choosing carpooling, biking, public transit, or electric vehicle alternatives.", 20, currentY + 16);
   doc.text("3. Support global reforestation efforts: planting trees directly counteracts and absorbs ongoing industrial CO2 emissions.", 20, currentY + 21);
 
-  // Footer text
   doc.setFont("helvetica", "italic");
   doc.setFontSize(7.5);
   doc.setTextColor(grayColor[0], grayColor[1], grayColor[2]);
