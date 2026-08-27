@@ -572,7 +572,7 @@ export default function App() {
         <div className="max-w-7xl mx-auto mt-6 pt-6 border-t border-[#21262d] flex flex-col sm:flex-row items-center justify-between gap-3 text-[11px] text-gray-500">
           <span>&copy; 2026 EcoPulse Vision. Grounded in UN Sustainable Development Goal 13 (Climate Action).</span>
           <div className="flex items-center gap-4">
-            <span>Powered by Gemini 3.1 Pro Multimodal Intelligence</span>
+            <span>Powered by Gemini 3.7 Flash Multimodal Intelligence</span>
             <span>•</span>
             <span className="text-emerald-400 font-semibold">100% GHG Protocol Scope 1-3 Compliant</span>
           </div>

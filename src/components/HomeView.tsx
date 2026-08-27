@@ -97,7 +97,7 @@ export default function HomeView({
             {/* Subtitle */}
             <p className="text-base text-gray-300 leading-relaxed">
               Transform everyday visual reality into empirical carbon intelligence. Using 
-              multimodal <strong className="text-white">Gemini 3.1 Pro Vision</strong>, EcoPulse 
+              multimodal <strong className="text-white">Gemini 3.7 Vision</strong>, EcoPulse 
               instantly audits vehicles, appliances, energy grids, and suggests precise botanical 
               tree offsets to combat global climate change.
             </p>
@@ -266,7 +266,7 @@ export default function HomeView({
               </div>
               <h3 className="text-base font-bold text-white mb-2">Multimodal AI Vision</h3>
               <p className="text-xs text-gray-300 leading-relaxed">
-                Powered by Gemini 3.1 Pro with High Thinking Level to classify appliances, vehicles, and fuel types directly from images or real-time webcam streams.
+                Powered by Gemini 3.7 Flash Multimodal Intelligence to classify appliances, vehicles, and fuel types directly from images or real-time webcam streams.
               </p>
             </div>
             <div className="mt-4 pt-3 border-t border-[#30363d]/60 text-[11px] font-semibold text-purple-400">
