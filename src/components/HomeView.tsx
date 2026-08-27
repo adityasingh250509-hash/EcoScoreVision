@@ -97,7 +97,7 @@ export default function HomeView({
             {/* Subtitle */}
             <p className="text-base text-gray-300 leading-relaxed">
               Transform everyday visual reality into empirical carbon intelligence. Using 
-              multimodal <strong className="text-white">Gemini 3.7 Vision</strong>, EcoPulse 
+              multimodal <strong className="text-white">Gemini Vision AI</strong>, EcoPulse 
               instantly audits vehicles, appliances, energy grids, and suggests precise botanical 
               tree offsets to combat global climate change.
             </p>

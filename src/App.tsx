@@ -27,6 +27,7 @@ import AccountView from "./components/AccountView";
 
 import { SAMPLE_ITEMS, SampleItem } from "./constants/samples";
 import { DetectedItem, CalculationResult, HistoryItem, CategoryType, UnitType } from "./types";
+import { normalizeImageForAnalysis } from "./utils/imageUtils";
 
 export type NavPage = "home" | "dashboard" | "how-it-works" | "news" | "account";
 
@@ -141,16 +142,20 @@ export default function App() {
 
   // Process selected image with backend Gemini Vision endpoint
   const handleProcessImage = async (imageToProcess?: string) => {
-    const img = imageToProcess || selectedImage;
+    let img = imageToProcess || selectedImage;
     if (!img) return;
     
     setIsAnalyzing(true);
     setAnalysisError(null);
-    setDetectedItem(null);
-    setCalculationResult(null);
-    setCalcInputs(null);
 
     try {
+      // Normalize and compress if raw string/file
+      try {
+        img = await normalizeImageForAnalysis(img);
+      } catch (e) {
+        console.warn("Image pre-normalization skipped:", e);
+      }
+
       const response = await fetch("/api/analyze-image", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -458,6 +463,7 @@ export default function App() {
                   setAnalysisError(null);
                   setCalcInputs(null);
                 }}
+                onAnalyze={() => handleProcessImage()}
                 detectedItem={detectedItem}
                 calculationResult={calculationResult}
                 calcInputs={calcInputs}

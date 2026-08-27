@@ -33,6 +33,7 @@ interface DashboardViewProps {
   selectedImage: string | null;
   onImageSelected: (img: string) => void;
   onClearImage: () => void;
+  onAnalyze?: () => void;
   detectedItem: DetectedItem | null;
   calculationResult: CalculationResult | null;
   calcInputs: {
@@ -60,6 +61,7 @@ export default function DashboardView({
   selectedImage,
   onImageSelected,
   onClearImage,
+  onAnalyze,
   detectedItem,
   calculationResult,
   calcInputs,
@@ -220,6 +222,8 @@ export default function DashboardView({
                 onImageSelected={onImageSelected}
                 selectedImage={selectedImage}
                 onClear={onClearImage}
+                onAnalyze={onAnalyze}
+                isAnalyzing={isAnalyzing}
               />
             )}
 

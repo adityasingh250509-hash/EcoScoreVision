@@ -36,10 +36,10 @@ export default function HowModelWorksView() {
       id: 0,
       title: "1. Multimodal Vision Perception",
       icon: Cpu,
-      badge: "Gemini 3.7 Flash",
+      badge: "Gemini 3.6 Flash",
       summary: "High-resolution visual encoding and fast reasoning over image parts or live video frames.",
-      details: "EcoPulse passes the raw base64 image along with structured system instructions to Gemini 3.7 Flash. The model analyzes visual characteristics such as machine form factor, compressor grilles, vehicle exhausts, displacement badges, or wattage plates.",
-      codeSnippet: `// Server API Call with Structured Output\nconst response = await ai.models.generateContent({\n  model: "gemini-3.7-flash",\n  contents: { parts: [imagePart, promptPart] },\n  config: {\n    responseMimeType: "application/json",\n    responseSchema: { ... }\n  }\n});`
+      details: "EcoPulse passes the raw base64 image along with structured system instructions to Gemini 3.6 Flash. The model analyzes visual characteristics such as machine form factor, compressor grilles, vehicle exhausts, displacement badges, or wattage plates.",
+      codeSnippet: `// Server API Call with Structured Output\nconst response = await ai.models.generateContent({\n  model: "gemini-3.6-flash",\n  contents: { parts: [imagePart, promptPart] },\n  config: {\n    responseMimeType: "application/json",\n    responseSchema: { ... }\n  }\n});`
     },
     {
       id: 1,
