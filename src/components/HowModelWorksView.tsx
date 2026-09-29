@@ -34,48 +34,48 @@ export default function HowModelWorksView() {
   const PIPELINE_STEPS = [
     {
       id: 0,
-      title: "1. Multimodal Vision Perception",
+      title: "1. Roboflow Computer Vision & Object Detection",
       icon: Cpu,
-      badge: "Gemini 3.6 Flash",
-      summary: "High-resolution visual encoding and fast reasoning over image parts or live video frames.",
-      details: "EcoPulse passes the raw base64 image along with structured system instructions to Gemini 3.6 Flash. The model analyzes visual characteristics such as machine form factor, compressor grilles, vehicle exhausts, displacement badges, or wattage plates.",
-      codeSnippet: `// Server API Call with Structured Output\nconst response = await ai.models.generateContent({\n  model: "gemini-3.6-flash",\n  contents: { parts: [imagePart, promptPart] },\n  config: {\n    responseMimeType: "application/json",\n    responseSchema: { ... }\n  }\n});`
+      badge: "Roboflow Workflows",
+      summary: "Custom-trained appliance model detecting bounding boxes, object class, and confidence scores.",
+      details: "Trained and hosted on Roboflow, the electrical-appliance-detector model is queried in real-time via the Roboflow Serverless Hosted Inference API. It parses incoming image frames or live camera streams, identifying key appliance categories (such as Microwave Oven, Refrigerator, Television, Washing Machine, Air Conditioner, and Electric Kettle) with sub-second latency.",
+      codeSnippet: `// 1. Query Roboflow Hosted Inference API\nconst res = await fetch(\n  "https://serverless.roboflow.com/infer/workflows/aditya-singh-e15al/electrical-appliance-detector",\n  {\n    method: "POST",\n    headers: { "Content-Type": "application/json" },\n    body: JSON.stringify({\n      api_key: "hVoxe0R8340Zd7vEzqCz",\n      inputs: { image: { type: "base64", value: base64Image } }\n    })\n  }\n);\nconst { outputs } = await res.json();\n// outputs[0].predictions -> [{ class: "microwave", confidence: 0.94 }]`
     },
     {
       id: 1,
-      title: "2. Semantic Classification & Schema Output",
-      icon: Layers,
-      badge: "Strict JSON Schema",
-      summary: "Deterministic taxonomy mapping into categorized environmental scopes.",
-      details: "The vision model classifies the item into standard GHG categories (Appliance, Transport, Energy, or Waste) and extracts a standard usage unit (hours, km, or kWh) alongside a recommended baseline consumption quantity.",
-      codeSnippet: `{\n  "item_name": "Split Air Conditioner",\n  "category": "appliance",\n  "default_unit": "hours",\n  "estimated_quantity": 8,\n  "estimated_factor": 1.5,\n  "factor_label": "Standard Inverter 1.5-Ton Grid Factor"\n}`
+      title: "2. Gemini Cross-Verification & Hardware Model Extraction",
+      icon: Sparkles,
+      badge: "Dual-Layer Safety Net",
+      summary: "Validates Roboflow predictions, corrects errors, and identifies the exact hardware model series.",
+      details: "To ensure empirical accuracy, Gemini inspects the image alongside Roboflow's prediction. If Roboflow is correct, Gemini verifies the detection and identifies the exact hardware model series (e.g., 'Panasonic Inverter Countertop NN-SN686S'). If Roboflow misclassifies or encounters an unindexed item, Gemini acts as a safety net: overriding with the true appliance name and detailed specifications.",
+      codeSnippet: `// 2. Gemini Cross-Verification & Hardware Spec Resolution\nconst prompt = \`Roboflow detected: "\${roboflowClass}".\nIs this correct? If Roboflow made an error, tell the true appliance name.\nAlso identify the exact model number and hardware specifications.\`;\n\nconst verification = await ai.models.generateContent({\n  model: "gemini-3.1-flash-lite",\n  contents: [prompt, imagePart],\n  config: { responseMimeType: "application/json" }\n});`
     },
     {
       id: 2,
-      title: "3. Emission Factor Matrix Multiplication",
+      title: "3. Semantic Classification & Schema Output",
+      icon: Layers,
+      badge: "Strict JSON Schema",
+      summary: "Deterministic taxonomy mapping into categorized environmental scopes.",
+      details: "The verified appliance and hardware model are mapped into standardized GHG scopes (Appliance, Energy, Transport, or Waste). An empirical baseline consumption quantity and standard operational unit (hours, km, or kWh) are extracted.",
+      codeSnippet: `{\n  "item_name": "Microwave Oven (Panasonic Countertop Inverter 1200W)",\n  "appliance_name": "microwave oven",\n  "model": "Panasonic Countertop Inverter 1200W",\n  "category": "appliance",\n  "default_unit": "hours",\n  "estimated_quantity": 0.5,\n  "estimated_factor": 1.2,\n  "factor_label": "Standard Inverter Microwave 1200W Grid Factor"\n}`
+    },
+    {
+      id: 3,
+      title: "4. Emission Factor Matrix Multiplication",
       icon: Calculator,
       badge: "GHG Protocol Standard",
       summary: "Mathematical carbon equivalent calculation based on regional grid & fuel standards.",
       details: "Emissions are computed using the empirical formula: CO2e (kg) = Usage Quantity (Q) × Emission Factor (EF). Factors follow the Intergovernmental Panel on Climate Change (IPCC) and GHG Protocol Scope 1 and Scope 2 standards.",
-      codeSnippet: `// Empirical Emissions Formula\nconst emissions = quantity * factor;\n// Example: 8 hours * 1.5 kg CO2/hour = 12.0 kg CO2`
+      codeSnippet: `// Empirical Emissions Formula\nconst emissions = quantity * factor;\n// Example: 0.5 hours * 1.2 kg CO2/hour = 0.60 kg CO2`
     },
     {
-      id: 3,
-      title: "4. Botanical Tree Offset Sequestration Model",
+      id: 4,
+      title: "5. Botanical Tree Offset Sequestration Model",
       icon: TreePine,
       badge: "IPCC Carbon Sink Metric",
       summary: "Converting raw greenhouse gas kilograms into real-world reforestation offset targets.",
       details: "According to environmental forestry research and the EPA/IPCC, an average mature deciduous tree sequesters approximately 20 to 22 kg of CO2 per year. EcoPulse applies a conservative ceil formula: Required Trees = ⌈Emissions / 20 kg⌉.",
-      codeSnippet: `// Botanical Sequestration Target\nconst treeOffset = Math.max(1, Math.ceil(emissions / 20));\n// 12.0 kg CO2 requires 1 full tree year to neutralize`
-    },
-    {
-      id: 4,
-      title: "5. Adaptive Generative Mitigation Synthesis",
-      icon: Sparkles,
-      badge: "Zero-Hallucination Advice",
-      summary: "Contextual advice tailored to user specific habits, equipment, and efficiency gains.",
-      details: "A secondary Gemini reasoning pass evaluates the calculated carbon footprint and yields three concise, actionable mitigation recommendations that immediately reduce operational emissions or propose cleaner renewable substitutes.",
-      codeSnippet: `// Tailored Mitigation Guidance\n1. Set thermostat to 24°C (75°F) to lower compressor load by 18%.\n2. Clean intake air filters bi-weekly to prevent airflow resistance.\n3. Plant 1 native tree to completely balance this audit session.`
+      codeSnippet: `// Botanical Sequestration Target\nconst treeOffset = Math.max(1, Math.ceil(emissions / 20));\n// 0.60 kg CO2 absorbed within 1 tree offset unit`
     }
   ];
 
@@ -83,18 +83,90 @@ export default function HowModelWorksView() {
     <div className="flex flex-col gap-12 pb-16 text-[#f0f6fc]">
       {/* Header */}
       <div className="flex flex-col gap-3 max-w-3xl">
-        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#2ea44f]/15 border border-[#2ea44f]/35 text-[#2ea44f] text-xs font-bold uppercase tracking-wider w-fit">
-          <Cpu className="w-4 h-4" />
-          <span>Scientific Methodology & AI Architecture</span>
+        <div className="flex flex-wrap items-center gap-2">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#7c3aed]/20 border border-[#7c3aed]/40 text-[#c4b5fd] text-xs font-bold tracking-wide w-fit shadow-sm">
+            <span className="w-2 h-2 rounded-full bg-[#a78bfa] animate-pulse"></span>
+            <span>Made with Roboflow • Computer Vision Architecture</span>
+          </div>
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#2ea44f]/15 border border-[#2ea44f]/35 text-[#2ea44f] text-xs font-bold uppercase tracking-wider w-fit">
+            <Cpu className="w-4 h-4" />
+            <span>Dual-AI Verification Pipeline</span>
+          </div>
         </div>
+
         <h1 className="text-3xl sm:text-4xl font-black text-white">
-          How EcoPulse Translates Vision Into Carbon Intelligence
+          How the Roboflow Model Works
         </h1>
         <p className="text-base text-gray-300 leading-relaxed">
-          Explore the multimodal neural pipeline, greenhouse gas calculation formulas, 
-          and forestry sequestration models powering EcoPulse Vision for UN SDG 13.
+          Learn how the custom <strong className="text-white">Roboflow appliance vision model</strong> (<span className="text-[#c4b5fd] font-mono text-sm">electrical-appliance-detector</span>) 
+          and hosted serverless inference operate together with <strong className="text-white">Gemini cross-verification</strong> to identify appliances, pinpoint hardware models, and calculate carbon footprints.
         </p>
       </div>
+
+      {/* Roboflow Model Architecture Specifications Card */}
+      <section className="bg-gradient-to-br from-[#1d1035] via-[#161b22] to-[#0d1117] border border-[#7c3aed]/40 rounded-2xl p-6 sm:p-8 shadow-2xl relative overflow-hidden">
+        <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 pb-6 border-b border-[#30363d]/80">
+          <div className="flex items-center gap-3">
+            <div className="p-3 rounded-xl bg-[#7c3aed]/20 text-[#a78bfa] border border-[#7c3aed]/30 shadow-md">
+              <Cpu className="w-6 h-6" />
+            </div>
+            <div>
+              <div className="flex items-center gap-2">
+                <h2 className="text-lg font-bold text-white">Roboflow Appliance Detector Specification</h2>
+                <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-[#7c3aed]/30 text-[#c4b5fd] border border-[#7c3aed]/50 uppercase">
+                  Production Workflow
+                </span>
+              </div>
+              <p className="text-xs text-gray-400">Trained and deployed with Roboflow Workflows & Hosted Serverless Inference</p>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <span className="text-xs font-mono px-3 py-1.5 rounded-lg bg-[#0d1117] border border-[#7c3aed]/40 text-[#c4b5fd]">
+              API: serverless.roboflow.com
+            </span>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 pt-6">
+          <div className="p-4 rounded-xl bg-[#0d1117]/80 border border-[#30363d]">
+            <span className="text-[11px] font-semibold text-gray-400 uppercase tracking-wider">Workspace</span>
+            <div className="mt-1 font-mono text-sm font-bold text-white">aditya-singh-e15al</div>
+            <p className="mt-1 text-[11px] text-gray-500">Roboflow organization workspace</p>
+          </div>
+
+          <div className="p-4 rounded-xl bg-[#0d1117]/80 border border-[#30363d]">
+            <span className="text-[11px] font-semibold text-[#a78bfa] uppercase tracking-wider">Workflow Model ID</span>
+            <div className="mt-1 font-mono text-sm font-bold text-[#c4b5fd] truncate">electrical-appliance-detector</div>
+            <p className="mt-1 text-[11px] text-gray-500">Custom object detection graph</p>
+          </div>
+
+          <div className="p-4 rounded-xl bg-[#0d1117]/80 border border-[#30363d]">
+            <span className="text-[11px] font-semibold text-[#38bdf8] uppercase tracking-wider">Dual-AI Integration</span>
+            <div className="mt-1 font-mono text-sm font-bold text-[#38bdf8]">Roboflow + Gemini</div>
+            <p className="mt-1 text-[11px] text-gray-500">Auto cross-verification & model specs</p>
+          </div>
+
+          <div className="p-4 rounded-xl bg-[#0d1117]/80 border border-[#30363d]">
+            <span className="text-[11px] font-semibold text-[#2ea44f] uppercase tracking-wider">Target Domain</span>
+            <div className="mt-1 font-mono text-sm font-bold text-[#2ea44f]">Energy & Appliances</div>
+            <p className="mt-1 text-[11px] text-gray-500">Microwaves, ACs, Fridges, TVs, etc.</p>
+          </div>
+        </div>
+
+        {/* How the Roboflow + Gemini Handshake Works */}
+        <div className="mt-6 p-4 rounded-xl bg-[#050911]/80 border border-[#30363d] flex flex-col md:flex-row items-center gap-4 text-xs text-gray-300">
+          <div className="flex items-center gap-2 text-[#a78bfa] font-bold min-w-fit">
+            <Sparkles className="w-4 h-4" />
+            <span>How The Models Collaborate:</span>
+          </div>
+          <div className="flex-1 leading-relaxed">
+            <strong className="text-white">1. Roboflow Detection:</strong> Scans the camera/uploaded frame and predicts the appliance class (e.g. <em>microwave</em>, <em>refrigerator</em>). 
+            <span className="mx-2 text-gray-500">➔</span>
+            <strong className="text-white">2. Gemini Verification:</strong> Validates Roboflow's prediction. If Roboflow is right, Gemini confirms it and extracts the exact model series. If Roboflow misidentifies, Gemini corrects the appliance name and specifies the model.
+          </div>
+        </div>
+      </section>
 
       {/* Interactive Step-by-Step Pipeline */}
       <section className="bg-[#161b22] border border-[#30363d] rounded-2xl p-6 sm:p-8 shadow-xl">

@@ -8,6 +8,11 @@ export interface DetectedItem {
   estimated_quantity?: number;
   estimated_factor?: number;
   factor_label?: string;
+  appliance_name?: string;
+  model?: string;
+  is_roboflow_correct?: boolean;
+  roboflow_detected_name?: string;
+  roboflow_verdict?: string;
 }
 
 export interface CalculationResult {

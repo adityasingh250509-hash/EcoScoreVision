@@ -80,26 +80,32 @@ export default function HomeView({
             transition={{ duration: 0.5 }}
             className="lg:col-span-5 flex flex-col gap-6"
           >
-            {/* UN SDG 13 Pill */}
-            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#2ea44f]/15 border border-[#2ea44f]/35 text-[#2ea44f] text-xs font-bold uppercase tracking-wider w-fit">
-              <ShieldCheck className="w-4 h-4" />
-              <span>UN SDG 13: CLIMATE ACTION INITIATIVE</span>
+            {/* Badges: Made with Roboflow & UN SDG 13 */}
+            <div className="flex flex-wrap items-center gap-2">
+              <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#7c3aed]/20 border border-[#7c3aed]/40 text-[#c4b5fd] text-xs font-bold tracking-wide w-fit shadow-sm">
+                <span className="w-2 h-2 rounded-full bg-[#a78bfa] animate-pulse"></span>
+                <span>Made with Roboflow • Appliance Vision Model</span>
+              </div>
+              <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#2ea44f]/15 border border-[#2ea44f]/35 text-[#2ea44f] text-xs font-bold uppercase tracking-wider w-fit">
+                <ShieldCheck className="w-4 h-4" />
+                <span>UN SDG 13</span>
+              </div>
             </div>
 
             {/* Headline */}
             <h1 className="text-3xl sm:text-4xl lg:text-5xl font-black tracking-tight leading-[1.15] text-white">
               AI Vision for <br />
-              <span className="bg-gradient-to-r from-[#2ea44f] via-[#38bdf8] to-[#10b981] bg-clip-text text-transparent">
+              <span className="bg-gradient-to-r from-[#a78bfa] via-[#38bdf8] to-[#2ea44f] bg-clip-text text-transparent">
                 Planetary Decarbonization
               </span>
             </h1>
 
             {/* Subtitle */}
             <p className="text-base text-gray-300 leading-relaxed">
-              Transform everyday visual reality into empirical carbon intelligence. Using 
-              multimodal <strong className="text-white">Gemini Vision AI</strong>, EcoPulse 
-              instantly audits vehicles, appliances, energy grids, and suggests precise botanical 
-              tree offsets to combat global climate change.
+              Transform everyday visual reality into empirical carbon intelligence. Powered by a custom 
+              <strong className="text-white"> Roboflow Computer Vision Model</strong> (<span className="text-[#c4b5fd] font-mono text-xs">electrical-appliance-detector</span>) 
+              with <strong className="text-white">Gemini AI verification</strong>, EcoPulse 
+              instantly audits appliances, equipment, and vehicles to calculate exact energy footprints and botanical tree offsets.
             </p>
 
             {/* Primary Action Buttons */}
@@ -115,26 +121,26 @@ export default function HomeView({
 
               <button
                 onClick={onNavigateToHowItWorks}
-                className="px-4 py-3 rounded-xl bg-[#21262d] hover:bg-[#30363d] border border-[#30363d] text-gray-200 hover:text-white font-semibold text-sm flex items-center gap-2 transition-all cursor-pointer"
+                className="px-4 py-3 rounded-xl bg-[#21262d] hover:bg-[#30363d] border border-[#7c3aed]/40 text-gray-200 hover:text-white font-semibold text-sm flex items-center gap-2 transition-all cursor-pointer"
               >
-                <Cpu className="w-4 h-4 text-[#38bdf8]" />
-                <span>How Model Works</span>
+                <Cpu className="w-4 h-4 text-[#a78bfa]" />
+                <span>How Roboflow Model Works</span>
               </button>
             </div>
 
             {/* Micro Stats List */}
             <div className="grid grid-cols-3 gap-3 pt-4 border-t border-[#30363d]/60">
               <div className="flex flex-col">
-                <span className="text-lg font-extrabold text-white">0.4s</span>
-                <span className="text-[11px] text-gray-400 font-medium">Vision Latency</span>
+                <span className="text-lg font-extrabold text-[#c4b5fd]">Roboflow</span>
+                <span className="text-[11px] text-gray-400 font-medium">Trained Model Active</span>
               </div>
               <div className="flex flex-col">
-                <span className="text-lg font-extrabold text-[#2ea44f]">100%</span>
-                <span className="text-[11px] text-gray-400 font-medium">GHG Protocol Align</span>
+                <span className="text-lg font-extrabold text-[#2ea44f]">Dual-AI</span>
+                <span className="text-[11px] text-gray-400 font-medium">Roboflow + Gemini</span>
               </div>
               <div className="flex flex-col">
                 <span className="text-lg font-extrabold text-[#38bdf8]">20 kg</span>
-                <span className="text-[11px] text-gray-400 font-medium">CO2/Tree Sequestration</span>
+                <span className="text-[11px] text-gray-400 font-medium">CO2/Tree Offset</span>
               </div>
             </div>
           </motion.div>
@@ -259,18 +265,19 @@ export default function HomeView({
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
           {/* Pillar 1 */}
-          <div className="p-5 rounded-2xl bg-[#161b22] border border-[#30363d] hover:border-[#2ea44f]/60 transition-all flex flex-col justify-between group">
+          <div className="p-5 rounded-2xl bg-[#161b22] border border-[#30363d] hover:border-[#7c3aed]/60 transition-all flex flex-col justify-between group">
             <div>
-              <div className="w-10 h-10 rounded-xl bg-purple-500/15 border border-purple-500/30 text-purple-400 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
-                <Cpu className="w-5 h-5" />
+              <div className="w-10 h-10 rounded-xl bg-purple-500/15 border border-purple-500/30 text-[#c4b5fd] flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                <Cpu className="w-5 h-5 text-[#a78bfa]" />
               </div>
-              <h3 className="text-base font-bold text-white mb-2">Multimodal AI Vision</h3>
+              <h3 className="text-base font-bold text-white mb-2">Roboflow Computer Vision</h3>
               <p className="text-xs text-gray-300 leading-relaxed">
-                Powered by Gemini 3.7 Flash Multimodal Intelligence to classify appliances, vehicles, and fuel types directly from images or real-time webcam streams.
+                Made with custom Roboflow workflows (<span className="text-[#c4b5fd] font-mono">electrical-appliance-detector</span>) delivering fast serverless object detection, cross-verified with Gemini for exact appliance model specifications.
               </p>
             </div>
-            <div className="mt-4 pt-3 border-t border-[#30363d]/60 text-[11px] font-semibold text-purple-400">
-              Zero-Shot Object Recognition
+            <div className="mt-4 pt-3 border-t border-[#30363d]/60 text-[11px] font-semibold text-[#c4b5fd] flex items-center justify-between">
+              <span>Made with Roboflow</span>
+              <span className="font-mono text-[10px] text-gray-400">Serverless API</span>
             </div>
           </div>
 
