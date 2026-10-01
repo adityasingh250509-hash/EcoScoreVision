@@ -307,95 +307,102 @@ export default function App() {
   const totalTrees = history.reduce((sum, item) => sum + item.treeOffset, 0);
 
   return (
-    <div className="min-h-screen bg-[#06090f] text-[#f0f6fc] flex flex-col font-sans selection:bg-[#2ea44f] selection:text-white">
-      {/* ---------------- NAVIGATION HEADER ---------------- */}
-      <header className="sticky top-0 z-40 bg-[#0d1117]/85 backdrop-blur-xl border-b border-[#30363d] px-4 sm:px-8 py-3">
+    <div className="min-h-screen bg-black text-[#f1f5f9] flex flex-col font-sans space-stars-bg selection:bg-emerald-500 selection:text-black relative overflow-x-hidden">
+      {/* Background Ambient Cosmic Glows */}
+      <div 
+        aria-hidden="true" 
+        className="pointer-events-none fixed inset-0 z-0 bg-[radial-gradient(ellipse_70%_40%_at_50%_-10%,rgba(16,185,129,0.12),transparent_70%)]" 
+      />
+      <div 
+        aria-hidden="true" 
+        className="pointer-events-none fixed bottom-0 right-0 w-[500px] h-[500px] bg-[radial-gradient(circle_at_bottom_right,rgba(6,182,212,0.06),transparent_70%)]" 
+      />
+
+      {/* ---------------- TOP BAR CONTRACT (ZONE 1, ZONE 2, ZONE 3) ---------------- */}
+      <header className="sticky top-0 z-40 bg-black/75 backdrop-blur-2xl border-b border-white/[0.08] px-4 sm:px-8 py-3.5 transition-colors">
         <div className="max-w-7xl mx-auto flex items-center justify-between">
-          {/* Logo & Brand */}
+          {/* Zone 1: Single text element wordmark */}
           <button
             onClick={() => setCurrentPage("home")}
-            className="flex items-center gap-3 group text-left cursor-pointer"
+            className="flex items-center gap-2.5 text-left cursor-pointer group"
           >
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-[#2ea44f] to-[#38bdf8] p-0.5 shadow-lg shadow-[#2ea44f]/20 group-hover:scale-105 transition-transform">
-              <div className="w-full h-full bg-[#0d1117] rounded-[10px] flex items-center justify-center">
-                <Globe className="w-5 h-5 text-[#2ea44f] group-hover:text-cyan-300 transition-colors" />
-              </div>
+            <div className="w-8 h-8 rounded-full bg-white/[0.06] border border-white/[0.15] flex items-center justify-center text-white group-hover:border-emerald-400 group-hover:text-emerald-400 transition-colors shadow-sm">
+              <Globe className="w-4 h-4" />
             </div>
             <div className="flex flex-col">
-              <div className="flex items-center gap-2">
-                <span className="text-base font-black tracking-tight text-white">
-                  EcoPulse<span className="text-[#2ea44f]">.vision</span>
-                </span>
-                <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-[#2ea44f]/20 text-[#2ea44f] border border-[#2ea44f]/40">
-                  SDG 13
-                </span>
-              </div>
-              <span className="text-[10px] text-gray-400 font-medium">Multimodal AI Climate Intelligence</span>
+              <span className="text-sm font-bold tracking-tight text-white group-hover:text-emerald-300 transition-colors flex items-center gap-1.5">
+                EcoPulse <span className="text-[10px] font-mono px-1.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">ASTRA 6</span>
+              </span>
+              <span className="text-[9px] font-mono text-slate-500 -mt-0.5">Planetary Intelligence</span>
             </div>
           </button>
 
-          {/* Desktop Navigation Links */}
-          <nav className="hidden md:flex items-center gap-1 bg-[#161b22] p-1.5 rounded-2xl border border-[#30363d]">
+          {/* Zone 2: 4-5 clean text navigation links */}
+          <nav className="hidden md:flex items-center gap-1 bg-white/[0.03] p-1 rounded-full border border-white/[0.08] backdrop-blur-md">
             {[
-              { id: "home", label: "Home", icon: Globe },
-              { id: "dashboard", label: "Scanner Studio", icon: Camera },
-              { id: "how-it-works", label: "How Model Works", icon: Cpu },
-              { id: "news", label: "SDG 13 News", icon: Newspaper },
-              { id: "account", label: isSignedIn ? userName.split(" ")[0] : "Sign In", icon: User },
+              { id: "home", label: "Home" },
+              { id: "dashboard", label: "Scanner Studio" },
+              { id: "how-it-works", label: "How Model Works" },
+              { id: "news", label: "SDG 13 News" },
             ].map((tab) => {
               const isActive = currentPage === tab.id;
-              const Icon = tab.icon;
               return (
                 <button
                   key={tab.id}
                   onClick={() => setCurrentPage(tab.id as NavPage)}
-                  className={`px-3.5 py-1.5 rounded-xl text-xs font-bold flex items-center gap-2 transition-all cursor-pointer ${
+                  className={`px-4 py-1.5 rounded-full text-xs font-mono font-medium transition-all cursor-pointer whitespace-nowrap ${
                     isActive
-                      ? "bg-[#2ea44f] text-white shadow-md shadow-[#2ea44f]/25"
-                      : "text-gray-400 hover:text-white hover:bg-[#21262d]"
+                      ? "bg-white text-black font-semibold shadow-sm"
+                      : "text-slate-400 hover:text-white hover:bg-white/[0.05]"
                   }`}
                 >
-                  <Icon className="w-3.5 h-3.5" />
-                  <span>{tab.label}</span>
+                  {tab.label}
                 </button>
               );
             })}
           </nav>
 
-          {/* Right Header Controls (Quick Scanner CTA / Live Indicator) */}
-          <div className="hidden lg:flex items-center gap-3">
-            <div className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-[#161b22] border border-[#30363d] text-xs">
-              <TreePine className="w-4 h-4 text-[#2ea44f]" />
-              <span className="text-gray-300 font-medium">Audited Trees:</span>
-              <span className="font-bold text-white">{totalTrees}</span>
-            </div>
+          {/* Zone 3: 1-2 primary actions */}
+          <div className="flex items-center gap-3">
+            <button
+              onClick={() => setCurrentPage("account")}
+              className={`hidden sm:flex items-center gap-2 px-3.5 py-1.5 rounded-full border text-xs font-mono font-medium transition-colors cursor-pointer ${
+                currentPage === "account"
+                  ? "bg-white/[0.12] border-white/[0.25] text-white"
+                  : "bg-transparent border-white/[0.08] text-slate-400 hover:text-slate-200 hover:border-white/[0.15]"
+              }`}
+            >
+              <User className="w-3.5 h-3.5" />
+              <span>{isSignedIn ? userName.split(" ")[0] : "Sign In"}</span>
+            </button>
 
             <button
               onClick={() => setCurrentPage("dashboard")}
-              className="px-4 py-2 rounded-xl bg-gradient-to-r from-[#2ea44f] to-[#238636] hover:from-[#34c759] hover:to-[#2ea44f] text-white text-xs font-bold flex items-center gap-1.5 shadow-md shadow-[#2ea44f]/20 transition-all transform hover:scale-105 cursor-pointer"
+              className="px-5 py-2 rounded-full bg-white hover:bg-slate-200 text-black font-semibold text-xs flex items-center gap-1.5 shadow-[0_0_20px_rgba(255,255,255,0.25)] transition-all cursor-pointer whitespace-nowrap active:scale-95"
             >
-              <Camera className="w-3.5 h-3.5" />
-              <span>Scan Item</span>
+              <Camera className="w-3.5 h-3.5 text-black" />
+              <span>Launch Studio</span>
+            </button>
+
+            {/* Mobile Menu Toggle */}
+            <button
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              className="md:hidden p-2 rounded-full bg-white/[0.04] border border-white/[0.08] text-slate-300 hover:text-white"
+              aria-label="Toggle Navigation"
+            >
+              {mobileMenuOpen ? <X className="w-4 h-4" /> : <Menu className="w-4 h-4" />}
             </button>
           </div>
-
-          {/* Mobile Menu Toggle */}
-          <button
-            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            className="md:hidden p-2 rounded-xl bg-[#161b22] border border-[#30363d] text-gray-300 hover:text-white"
-          >
-            {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
-          </button>
         </div>
 
         {/* Mobile Dropdown Menu */}
         {mobileMenuOpen && (
-          <div className="md:hidden pt-3 pb-2 border-t border-[#30363d] mt-3 flex flex-col gap-2">
+          <div className="md:hidden pt-3 pb-2 border-t border-white/[0.08] mt-3 flex flex-col gap-1.5">
             {[
               { id: "home", label: "Home Overview", icon: Globe },
               { id: "dashboard", label: "Scanner Studio", icon: Camera },
               { id: "how-it-works", label: "How Model Works", icon: Cpu },
-              { id: "news", label: "SDG 13 News with Photos", icon: Newspaper },
+              { id: "news", label: "SDG 13 News", icon: Newspaper },
               { id: "account", label: isSignedIn ? "My Profile" : "Sign In", icon: User },
             ].map((tab) => {
               const isActive = currentPage === tab.id;
@@ -407,10 +414,10 @@ export default function App() {
                     setCurrentPage(tab.id as NavPage);
                     setMobileMenuOpen(false);
                   }}
-                  className={`px-4 py-2.5 rounded-xl text-xs font-bold flex items-center gap-2.5 text-left transition-all ${
+                  className={`px-3 py-2 rounded-lg text-xs font-medium flex items-center gap-2.5 text-left transition-all ${
                     isActive
-                      ? "bg-[#2ea44f] text-white"
-                      : "text-gray-300 hover:bg-[#21262d]"
+                      ? "bg-emerald-500/20 text-emerald-300 border border-emerald-500/30"
+                      : "text-slate-400 hover:text-white hover:bg-white/[0.04]"
                   }`}
                 >
                   <Icon className="w-4 h-4" />
@@ -423,7 +430,7 @@ export default function App() {
       </header>
 
       {/* ---------------- MAIN VIEW ROUTER ---------------- */}
-      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-8 pt-8">
+      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-8 pt-6 relative z-10">
         <AnimatePresence mode="wait">
           {currentPage === "home" && (
             <motion.div
@@ -527,60 +534,60 @@ export default function App() {
       </main>
 
       {/* ---------------- FOOTER ---------------- */}
-      <footer className="border-t border-[#30363d] bg-[#0d1117] px-4 sm:px-8 py-10 mt-auto">
+      <footer className="border-t border-white/[0.08] bg-[#070a11] px-4 sm:px-8 py-8 mt-auto relative z-10">
         <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-6">
           <div className="flex items-center gap-3">
-            <div className="p-2 rounded-xl bg-[#2ea44f]/20 border border-[#2ea44f]/40 text-[#2ea44f]">
-              <Globe className="w-5 h-5" />
+            <div className="w-8 h-8 rounded-lg bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-400">
+              <Globe className="w-4 h-4" />
             </div>
             <div>
-              <span className="text-sm font-bold text-white">EcoPulse Vision • UN SDG 13 Climate Platform</span>
-              <p className="text-xs text-gray-400">
-                Empowering individuals and enterprises to observe, quantify, and neutralize carbon output.
+              <span className="text-xs font-bold text-white tracking-wide">EcoPulse Vision · UN SDG 13 Climate Platform</span>
+              <p className="text-[11px] text-slate-400 mt-0.5">
+                Multi-agent visual carbon intelligence for empirical decarbonization.
               </p>
             </div>
           </div>
 
-          <div className="flex flex-wrap items-center gap-6 text-xs text-gray-400">
+          <div className="flex flex-wrap items-center gap-5 text-xs text-slate-400">
             <button
               onClick={() => setCurrentPage("home")}
-              className="hover:text-emerald-400 transition-colors"
+              className="hover:text-white transition-colors cursor-pointer"
             >
-              3D Earth Home
+              Home
             </button>
             <button
               onClick={() => setCurrentPage("dashboard")}
-              className="hover:text-emerald-400 transition-colors"
+              className="hover:text-white transition-colors cursor-pointer"
             >
               Scanner Studio
             </button>
             <button
               onClick={() => setCurrentPage("how-it-works")}
-              className="hover:text-emerald-400 transition-colors"
+              className="hover:text-white transition-colors cursor-pointer"
             >
-              Scientific Engine
+              How Model Works
             </button>
             <button
               onClick={() => setCurrentPage("news")}
-              className="hover:text-emerald-400 transition-colors"
+              className="hover:text-white transition-colors cursor-pointer"
             >
               SDG 13 News
             </button>
             <button
               onClick={() => setCurrentPage("account")}
-              className="hover:text-emerald-400 transition-colors"
+              className="hover:text-white transition-colors cursor-pointer"
             >
               Account
             </button>
           </div>
         </div>
 
-        <div className="max-w-7xl mx-auto mt-6 pt-6 border-t border-[#21262d] flex flex-col sm:flex-row items-center justify-between gap-3 text-[11px] text-gray-500">
-          <span>&copy; 2026 EcoPulse Vision. Grounded in UN Sustainable Development Goal 13 (Climate Action).</span>
-          <div className="flex items-center gap-4">
-            <span>Powered by Gemini 3.7 Flash Multimodal Intelligence</span>
-            <span>•</span>
-            <span className="text-emerald-400 font-semibold">100% GHG Protocol Scope 1-3 Compliant</span>
+        <div className="max-w-7xl mx-auto mt-6 pt-4 border-t border-white/[0.06] flex flex-col sm:flex-row items-center justify-between gap-2 text-[11px] text-slate-500 font-mono">
+          <span>© 2026 EcoPulse Vision · UN Sustainable Development Goal 13</span>
+          <div className="flex items-center gap-3">
+            <span>Roboflow Vision + Gemini API</span>
+            <span aria-hidden="true">·</span>
+            <span className="text-emerald-400">GHG Protocol Scope 1-3</span>
           </div>
         </div>
       </footer>

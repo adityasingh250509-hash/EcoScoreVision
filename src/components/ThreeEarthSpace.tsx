@@ -624,33 +624,33 @@ export default function ThreeEarthSpace({
   };
 
   return (
-    <div className={`relative overflow-hidden select-none bg-[#02050c] rounded-2xl border border-[#30363d]/60 shadow-2xl ${className}`}>
+    <div className={`relative overflow-hidden select-none bg-[#030712] rounded-2xl border border-white/[0.08] shadow-2xl ${className}`}>
       {/* 3D Canvas Mount */}
       <div ref={containerRef} className="w-full h-full cursor-grab active:cursor-grabbing" />
 
       {/* Floating HUD Overlays */}
       {/* Top Left: Live Earth Status & SDG 13 Badge */}
       <div className="absolute top-4 left-4 z-10 flex flex-col gap-2 pointer-events-none">
-        <div className="flex items-center gap-2 bg-[#161b22]/90 backdrop-blur-md px-3 py-1.5 rounded-lg border border-[#30363d] shadow-lg pointer-events-auto">
-          <span className="w-2.5 h-2.5 rounded-full bg-[#2ea44f] animate-ping" />
-          <span className="text-[11px] font-bold text-gray-200 uppercase tracking-wider flex items-center gap-1.5">
-            <Globe className="w-3.5 h-3.5 text-[#2ea44f]" /> 3D Earth Telemetry Active
+        <div className="flex items-center gap-2 bg-[#0b0f19]/90 backdrop-blur-md px-3 py-1.5 rounded-xl border border-white/[0.08] shadow-lg pointer-events-auto">
+          <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+          <span className="text-[10px] font-mono font-bold text-white uppercase tracking-wider flex items-center gap-1.5">
+            <Globe className="w-3.5 h-3.5 text-emerald-400" /> 3D Orbital Telemetry
           </span>
         </div>
-        <div className="hidden sm:flex items-center gap-2 bg-[#0d1117]/80 backdrop-blur-md px-2.5 py-1 rounded-md border border-[#30363d]/60 text-[10px] text-gray-400">
-          <Sparkles className="w-3 h-3 text-amber-400" />
-          <span>Click glowing pins to inspect SDG 13 global hubs</span>
+        <div className="hidden sm:flex items-center gap-2 bg-[#070a11]/85 backdrop-blur-md px-2.5 py-1 rounded-lg border border-white/[0.06] text-[10px] font-mono text-slate-400">
+          <Sparkles className="w-3 h-3 text-emerald-400" />
+          <span>Interactive global SDG 13 hotspots</span>
         </div>
       </div>
 
       {/* Top Right: Interactive 3D Controls */}
-      <div className="absolute top-4 right-4 z-10 flex items-center gap-1.5 bg-[#161b22]/90 backdrop-blur-md p-1.5 rounded-xl border border-[#30363d] shadow-lg">
+      <div className="absolute top-4 right-4 z-10 flex items-center gap-1 bg-[#0b0f19]/90 backdrop-blur-md p-1.5 rounded-xl border border-white/[0.08] shadow-lg">
         <button
           onClick={() => setAutoRotate(!autoRotate)}
-          className={`px-2.5 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-all ${
+          className={`px-2.5 py-1 rounded-lg text-xs font-mono font-medium flex items-center gap-1.5 transition-all cursor-pointer ${
             autoRotate
-              ? "bg-[#2ea44f]/20 text-[#2ea44f] border border-[#2ea44f]/40"
-              : "bg-[#21262d] text-gray-300 hover:bg-[#30363d]"
+              ? "bg-emerald-500/20 text-emerald-400 border border-emerald-500/30"
+              : "bg-white/[0.04] text-slate-300 hover:bg-white/[0.08]"
           }`}
           title={autoRotate ? "Pause Auto-Rotation" : "Enable Auto-Rotation"}
         >
@@ -658,11 +658,11 @@ export default function ThreeEarthSpace({
           <span className="hidden sm:inline">{autoRotate ? "Revolving" : "Paused"}</span>
         </button>
 
-        <div className="h-4 w-[1px] bg-[#30363d]" />
+        <div className="h-4 w-[1px] bg-white/[0.08]" />
 
         <button
           onClick={() => handleZoom(-0.6)}
-          className="p-1.5 text-gray-300 hover:text-white bg-[#21262d] hover:bg-[#30363d] rounded-lg transition-colors"
+          className="p-1.5 text-slate-300 hover:text-white bg-white/[0.04] hover:bg-white/[0.08] rounded-lg transition-colors cursor-pointer"
           title="Zoom In"
         >
           <ZoomIn className="w-4 h-4" />
@@ -670,7 +670,7 @@ export default function ThreeEarthSpace({
 
         <button
           onClick={() => handleZoom(0.6)}
-          className="p-1.5 text-gray-300 hover:text-white bg-[#21262d] hover:bg-[#30363d] rounded-lg transition-colors"
+          className="p-1.5 text-slate-300 hover:text-white bg-white/[0.04] hover:bg-white/[0.08] rounded-lg transition-colors cursor-pointer"
           title="Zoom Out"
         >
           <ZoomOut className="w-4 h-4" />
@@ -678,7 +678,7 @@ export default function ThreeEarthSpace({
 
         <button
           onClick={handleResetPosition}
-          className="p-1.5 text-gray-300 hover:text-white bg-[#21262d] hover:bg-[#30363d] rounded-lg transition-colors"
+          className="p-1.5 text-slate-300 hover:text-white bg-white/[0.04] hover:bg-white/[0.08] rounded-lg transition-colors cursor-pointer"
           title="Reset Orbit Position"
         >
           <Compass className="w-4 h-4" />
@@ -687,54 +687,54 @@ export default function ThreeEarthSpace({
 
       {/* Bottom Floating Hotspot Info Drawer (When a pin is clicked) */}
       {selectedHotspot && (
-        <div className="absolute bottom-4 left-4 right-4 z-20 max-w-lg mx-auto bg-[#161b22]/95 backdrop-blur-xl border border-[#2ea44f]/40 p-4 rounded-xl shadow-2xl text-[#f0f6fc] animate-in fade-in slide-in-from-bottom-4 duration-300">
+        <div className="absolute bottom-4 left-4 right-4 z-20 max-w-lg mx-auto bg-[#0b0f19]/95 backdrop-blur-xl border border-emerald-500/40 p-4 rounded-2xl shadow-2xl text-[#f1f5f9] animate-in fade-in slide-in-from-bottom-4 duration-300">
           <div className="flex items-start justify-between gap-3">
-            <div className="flex items-center gap-2">
-              <div className={`p-2 rounded-lg ${
-                selectedHotspot.type === "renewable" ? "bg-cyan-500/20 text-cyan-400" :
-                selectedHotspot.type === "reforestation" ? "bg-emerald-500/20 text-emerald-400" :
-                "bg-amber-500/20 text-amber-400"
+            <div className="flex items-center gap-2.5">
+              <div className={`p-2 rounded-xl border border-white/[0.08] ${
+                selectedHotspot.type === "renewable" ? "bg-cyan-500/10 text-cyan-400" :
+                selectedHotspot.type === "reforestation" ? "bg-emerald-500/10 text-emerald-400" :
+                "bg-amber-500/10 text-amber-400"
               }`}>
                 <MapPin className="w-4 h-4" />
               </div>
               <div>
                 <h4 className="text-sm font-bold text-white flex items-center gap-2">
                   {selectedHotspot.name}
-                  <span className="text-[10px] px-2 py-0.5 rounded-full font-semibold uppercase bg-[#21262d] text-gray-300 border border-[#30363d]">
+                  <span className="text-[10px] font-mono px-2 py-0.5 rounded-md font-semibold uppercase bg-white/[0.04] text-slate-300 border border-white/[0.06]">
                     {selectedHotspot.region}
                   </span>
                 </h4>
-                <p className="text-xs text-[#2ea44f] font-semibold">{selectedHotspot.title}</p>
+                <p className="text-xs text-emerald-400 font-medium font-mono">{selectedHotspot.title}</p>
               </div>
             </div>
             <button
               onClick={() => setSelectedHotspot(null)}
-              className="text-gray-400 hover:text-white text-xs px-2 py-1 bg-[#21262d] hover:bg-[#30363d] rounded-md transition-colors"
+              className="text-slate-400 hover:text-white text-xs px-2 py-1 bg-white/[0.04] hover:bg-white/[0.08] rounded-lg transition-colors cursor-pointer"
             >
               ✕
             </button>
           </div>
 
-          <div className="mt-3 p-2.5 bg-[#0d1117] rounded-lg border border-[#30363d]/70 flex items-center justify-between">
-            <span className="text-[11px] text-gray-400 font-medium">Telemetry Milestone:</span>
-            <span className="text-xs font-bold text-amber-300">{selectedHotspot.metric}</span>
+          <div className="mt-3 p-2.5 bg-[#070a11] rounded-xl border border-white/[0.06] flex items-center justify-between">
+            <span className="text-[11px] text-slate-400 font-mono">Telemetry Milestone:</span>
+            <span className="text-xs font-bold font-mono text-amber-300">{selectedHotspot.metric}</span>
           </div>
 
-          <p className="mt-2.5 text-xs text-gray-300 leading-relaxed">
+          <p className="mt-2.5 text-xs text-slate-300 leading-relaxed">
             {selectedHotspot.description}
           </p>
 
-          <div className="mt-3 pt-2.5 border-t border-[#30363d] flex items-center justify-between text-[11px]">
-            <span className="text-gray-400 flex items-center gap-1">
-              <Shield className="w-3.5 h-3.5 text-[#2ea44f]" /> {selectedHotspot.sdgTarget}
+          <div className="mt-3 pt-2.5 border-t border-white/[0.06] flex items-center justify-between text-[11px] font-mono">
+            <span className="text-slate-400 flex items-center gap-1">
+              <Shield className="w-3.5 h-3.5 text-emerald-400" /> {selectedHotspot.sdgTarget}
             </span>
-            <span className="text-emerald-400 font-semibold">Active UN SDG 13 Monitor</span>
+            <span className="text-emerald-400 font-medium">UN SDG 13 Monitor</span>
           </div>
         </div>
       )}
 
       {/* Bottom Hint */}
-      <div className="absolute bottom-3 left-1/2 -translate-x-1/2 pointer-events-none hidden md:flex items-center gap-2 text-[10px] text-gray-400/80 bg-[#0d1117]/60 px-3 py-1 rounded-full border border-white/5">
+      <div className="absolute bottom-3 left-1/2 -translate-x-1/2 pointer-events-none hidden md:flex items-center gap-2 text-[10px] font-mono text-slate-500 bg-[#070a11]/80 px-3 py-1 rounded-full border border-white/[0.06]">
         <span>Drag to rotate Earth</span> • <span>Scroll to zoom</span> • <span>Click glowing hotspots</span>
       </div>
     </div>

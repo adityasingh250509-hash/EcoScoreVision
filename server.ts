@@ -32,6 +32,7 @@ async function startServer() {
   const PORT = 3000;
 
   app.use(express.json({ limit: "15mb" }));
+  app.use(express.static(path.join(process.cwd(), "public")));
 
   // Health check endpoint for Cloud Run and monitoring
   app.get("/api/health", (req, res) => {

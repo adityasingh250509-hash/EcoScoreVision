@@ -1,5 +1,5 @@
 import React, { useRef, useState, useEffect } from "react";
-import { Camera, VideoOff, RefreshCw, Check, AlertCircle } from "lucide-react";
+import { Camera, RefreshCw, AlertCircle } from "lucide-react";
 import { motion } from "motion/react";
 
 interface WebcamScannerProps {
@@ -35,7 +35,7 @@ export default function WebcamScanner({ onCapture, onClose }: WebcamScannerProps
     } catch (err: any) {
       console.error("Webcam access error:", err);
       if (err.message === "NotSupportedError") {
-        setError("Your browser or preview environment does not support video capture. Please open the application in a new tab (by clicking the button in the top right) or use the 'File Upload' tab instead.");
+        setError("Your browser or preview environment does not support video capture. Please open the application in a new tab or use the 'File Upload' tab instead.");
       } else if (
         err.name === "NotAllowedError" || 
         err.name === "PermissionDeniedError" || 
@@ -43,9 +43,9 @@ export default function WebcamScanner({ onCapture, onClose }: WebcamScannerProps
         err.message?.toLowerCase().includes("permission") ||
         err.message?.includes("Permission denied")
       ) {
-        setError("Camera permission was denied. If you are using the in-editor preview iframe, please click 'Open in a new tab' at the top right of the preview to grant camera access, or use the 'File Upload' tab to process an image.");
+        setError("Camera permission was denied. If using the preview iframe, open in a new tab to grant camera access, or use 'File Upload'.");
       } else {
-        setError("Unable to access camera. Please verify permissions, try opening the app in a new tab, or upload an image instead.");
+        setError("Unable to access camera. Please verify permissions or upload an image instead.");
       }
     } finally {
       setIsInitializing(false);
@@ -70,13 +70,11 @@ export default function WebcamScanner({ onCapture, onClose }: WebcamScannerProps
       if (context) {
         canvas.width = video.videoWidth || 640;
         canvas.height = video.videoHeight || 480;
-        // Flip horizontally if facing user, but since environment is default, we can draw normally
         context.drawImage(video, 0, 0, canvas.width, canvas.height);
         
         const base64Image = canvas.toDataURL("image/jpeg", 0.85);
         onCapture(base64Image);
         
-        // Stop stream after capture to release camera
         if (stream) {
           stream.getTracks().forEach((track) => track.stop());
         }
@@ -85,24 +83,24 @@ export default function WebcamScanner({ onCapture, onClose }: WebcamScannerProps
   };
 
   return (
-    <div className="flex flex-col items-center justify-center p-4 bg-[#161b22] border border-[#30363d] rounded-xl overflow-hidden shadow-xl">
-      <div className="relative w-full max-w-md aspect-video bg-[#0d1117] rounded-lg overflow-hidden flex items-center justify-center border border-[#30363d]">
+    <div className="flex flex-col items-center justify-center p-5 bg-[#0b0f19] border border-white/[0.08] rounded-2xl overflow-hidden shadow-2xl">
+      <div className="relative w-full max-w-md aspect-video bg-[#070a11] rounded-xl overflow-hidden flex items-center justify-center border border-white/[0.08]">
         {isInitializing && (
-          <div className="absolute inset-0 flex flex-col items-center justify-center text-[#f0f6fc] gap-2">
-            <RefreshCw className="w-8 h-8 text-[#2ea44f] animate-spin" />
-            <span className="text-sm text-gray-400">Requesting camera access...</span>
+          <div className="absolute inset-0 flex flex-col items-center justify-center text-white gap-2 font-mono">
+            <RefreshCw className="w-7 h-7 text-emerald-400 animate-spin" />
+            <span className="text-xs text-slate-400">Initializing Optical Sensor...</span>
           </div>
         )}
 
         {error && (
-          <div className="absolute inset-0 flex flex-col items-center justify-center p-4 text-center text-[#f0f6fc] bg-[#0d1117] gap-3">
-            <AlertCircle className="w-10 h-10 text-red-500" />
-            <p className="text-sm font-medium">{error}</p>
+          <div className="absolute inset-0 flex flex-col items-center justify-center p-4 text-center text-white bg-[#070a11] gap-3">
+            <AlertCircle className="w-8 h-8 text-rose-400" />
+            <p className="text-xs font-medium text-slate-300 max-w-xs">{error}</p>
             <button
               onClick={startWebcam}
-              className="px-4 py-2 bg-[#21262d] text-[#f0f6fc] hover:bg-[#30363d] rounded-lg text-xs flex items-center gap-1 border border-[#30363d] transition-colors"
+              className="px-3.5 py-1.5 bg-white/[0.06] text-white hover:bg-white/[0.1] rounded-lg text-xs font-mono flex items-center gap-1.5 border border-white/[0.1] transition-colors cursor-pointer"
             >
-              <RefreshCw className="w-3.5 h-3.5" /> Retry Camera
+              <RefreshCw className="w-3.5 h-3.5" /> Retry Sensor
             </button>
           </div>
         )}
@@ -115,14 +113,14 @@ export default function WebcamScanner({ onCapture, onClose }: WebcamScannerProps
           className={`w-full h-full object-cover ${error || isInitializing ? "hidden" : "block"}`}
         />
         
-        {/* Scanning corner brackets */}
-        <div className="absolute top-4 left-4 w-8 h-8 border-t-2 border-l-2 border-[#2ea44f] pointer-events-none"></div>
-        <div className="absolute top-4 right-4 w-8 h-8 border-t-2 border-r-2 border-[#2ea44f] pointer-events-none"></div>
-        <div className="absolute bottom-4 left-4 w-8 h-8 border-b-2 border-l-2 border-[#2ea44f] pointer-events-none"></div>
-        <div className="absolute bottom-4 right-4 w-8 h-8 border-b-2 border-r-2 border-[#2ea44f] pointer-events-none"></div>
+        {/* Reticles */}
+        <div className="absolute top-3 left-3 w-5 h-5 border-t border-l border-emerald-400/80 pointer-events-none" />
+        <div className="absolute top-3 right-3 w-5 h-5 border-t border-r border-emerald-400/80 pointer-events-none" />
+        <div className="absolute bottom-3 left-3 w-5 h-5 border-b border-l border-emerald-400/80 pointer-events-none" />
+        <div className="absolute bottom-3 right-3 w-5 h-5 border-b border-r border-emerald-400/80 pointer-events-none" />
         
         {/* Scanning line animation */}
-        <div className="absolute w-full h-0.5 bg-[#2ea44f] opacity-40 top-1/2 left-0 pointer-events-none animate-pulse"></div>
+        <div className="absolute w-full h-0.5 bg-emerald-400/50 top-1/2 left-0 pointer-events-none animate-pulse" />
         
         <canvas ref={canvasRef} className="hidden" />
       </div>
@@ -132,16 +130,16 @@ export default function WebcamScanner({ onCapture, onClose }: WebcamScannerProps
           <motion.button
             whileTap={{ scale: 0.95 }}
             onClick={captureFrame}
-            className="flex items-center gap-2 px-5 py-2.5 bg-[#2ea44f] hover:bg-[#2c974b] text-[#f0f6fc] text-sm font-semibold rounded-lg shadow transition-colors"
+            className="flex items-center gap-2 px-6 py-2.5 bg-emerald-500 hover:bg-emerald-400 text-black text-xs font-mono font-bold uppercase tracking-wider rounded-xl shadow-lg shadow-emerald-500/10 transition-colors cursor-pointer"
           >
-            <Camera className="w-4 h-4" /> Capture Photo
+            <Camera className="w-4 h-4" /> Capture Frame
           </motion.button>
         )}
         
         {onClose && (
           <button
             onClick={onClose}
-            className="px-5 py-2.5 bg-[#21262d] hover:bg-[#30363d] text-[#f0f6fc] text-sm font-medium rounded-lg border border-[#30363d] transition-colors"
+            className="px-5 py-2.5 bg-white/[0.04] hover:bg-white/[0.08] text-slate-300 hover:text-white text-xs font-mono rounded-xl border border-white/[0.08] transition-colors cursor-pointer"
           >
             Cancel
           </button>

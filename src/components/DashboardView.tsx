@@ -124,21 +124,23 @@ export default function DashboardView({
   };
 
   return (
-    <div className="flex flex-col gap-8 pb-16 text-[#f0f6fc]">
+    <div className="flex flex-col gap-6 pb-16 text-[#f1f5f9]">
       {/* Top Telemetry Summary Banner */}
-      <div className="bg-[#161b22] border border-[#30363d] rounded-2xl p-4 sm:p-6 shadow-xl flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+      <div className="bg-[#0b0f19] border border-white/[0.08] rounded-2xl p-4 sm:p-5 shadow-xl flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
         <div className="flex items-center gap-3">
-          <div className="p-3 bg-[#2ea44f]/15 rounded-xl border border-[#2ea44f]/30 text-[#2ea44f]">
-            <Sparkles className="w-6 h-6" />
+          <div className="w-9 h-9 bg-emerald-500/10 rounded-xl border border-emerald-500/30 text-emerald-400 flex items-center justify-center">
+            <Sparkles className="w-5 h-5" />
           </div>
           <div>
-            <h1 className="text-xl sm:text-2xl font-black text-white flex items-center gap-2">
-              Carbon Intelligence Studio
-              <span className="text-[10px] uppercase font-bold px-2 py-0.5 rounded-full bg-[#2ea44f]/20 text-[#2ea44f] border border-[#2ea44f]/40">
-                Live AI
+            <div className="flex items-center gap-2">
+              <h1 className="text-lg sm:text-xl font-bold text-white tracking-tight">
+                Carbon Intelligence Studio
+              </h1>
+              <span className="text-[10px] font-mono text-emerald-400 uppercase tracking-wider">
+                ROBOFLOW + GEMINI
               </span>
-            </h1>
-            <p className="text-xs text-gray-400">
+            </div>
+            <p className="text-xs text-slate-400 mt-0.5">
               Multimodal image recognition and automated lifecycle carbon accounting
             </p>
           </div>
@@ -146,15 +148,15 @@ export default function DashboardView({
 
         {/* Action Controls & Audit Export */}
         <div className="flex items-center gap-3 w-full md:w-auto justify-between md:justify-end">
-          <div className="flex items-center gap-4 px-4 py-2 bg-[#0d1117] rounded-xl border border-[#30363d]">
+          <div className="flex items-center gap-4 px-3.5 py-1.5 bg-white/[0.02] rounded-xl border border-white/[0.06]">
             <div className="flex flex-col">
-              <span className="text-[10px] text-gray-400 uppercase font-semibold">Audited CO2</span>
-              <span className="text-sm font-bold text-amber-400">{totalEmissions.toFixed(1)} kg</span>
+              <span className="text-[10px] text-slate-400 uppercase font-mono">Audited CO2</span>
+              <span className="text-xs sm:text-sm font-bold font-mono tabular-nums text-amber-400">{totalEmissions.toFixed(1)} kg</span>
             </div>
-            <div className="h-6 w-[1px] bg-[#30363d]" />
+            <div className="h-5 w-[1px] bg-white/[0.1]" />
             <div className="flex flex-col">
-              <span className="text-[10px] text-gray-400 uppercase font-semibold">Tree Offsets</span>
-              <span className="text-sm font-bold text-[#2ea44f]">{totalTrees} Trees</span>
+              <span className="text-[10px] text-slate-400 uppercase font-mono">Tree Offsets</span>
+              <span className="text-xs sm:text-sm font-bold font-mono tabular-nums text-emerald-400">{totalTrees} Trees</span>
             </div>
           </div>
 
@@ -162,11 +164,11 @@ export default function DashboardView({
             <button
               onClick={handleDownloadFullAuditPDF}
               disabled={isExportingPDF}
-              className="px-3.5 py-2.5 rounded-xl bg-[#2ea44f] hover:bg-[#34c759] text-white text-xs font-bold flex items-center gap-1.5 shadow-md transition-colors cursor-pointer disabled:opacity-50"
+              className="px-3.5 py-2 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-slate-950 text-xs font-semibold flex items-center gap-1.5 shadow-sm transition-colors cursor-pointer disabled:opacity-50 whitespace-nowrap"
               title="Download Official Carbon Audit Report"
             >
-              <FileText className="w-4 h-4" />
-              <span className="hidden sm:inline">Export PDF</span>
+              <FileText className="w-3.5 h-3.5" />
+              <span>Export PDF</span>
             </button>
           )}
         </div>
@@ -177,13 +179,13 @@ export default function DashboardView({
         {/* Left Column: Intake Studio (Upload, Webcam, Presets, Dynamic Form) */}
         <div className="lg:col-span-5 flex flex-col gap-5">
           {/* Intake Method Tabs */}
-          <div className="bg-[#161b22] border border-[#30363d] rounded-2xl p-2 flex items-center gap-1">
+          <div className="bg-[#0b0f19] border border-white/[0.08] rounded-xl p-1 flex items-center gap-1">
             <button
               onClick={() => setActiveInputTab("upload")}
-              className={`flex-1 py-2 rounded-xl text-xs font-bold flex items-center justify-center gap-2 transition-all cursor-pointer ${
+              className={`flex-1 py-1.5 rounded-lg text-xs font-medium flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
                 activeInputTab === "upload"
-                  ? "bg-[#2ea44f] text-white shadow-md shadow-[#2ea44f]/20"
-                  : "text-gray-400 hover:text-white hover:bg-[#21262d]"
+                  ? "bg-white/[0.1] text-white font-semibold shadow-xs"
+                  : "text-slate-400 hover:text-white hover:bg-white/[0.04]"
               }`}
             >
               <Upload className="w-3.5 h-3.5" />
@@ -192,10 +194,10 @@ export default function DashboardView({
 
             <button
               onClick={() => setActiveInputTab("webcam")}
-              className={`flex-1 py-2 rounded-xl text-xs font-bold flex items-center justify-center gap-2 transition-all cursor-pointer ${
+              className={`flex-1 py-1.5 rounded-lg text-xs font-medium flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
                 activeInputTab === "webcam"
-                  ? "bg-[#2ea44f] text-white shadow-md shadow-[#2ea44f]/20"
-                  : "text-gray-400 hover:text-white hover:bg-[#21262d]"
+                  ? "bg-white/[0.1] text-white font-semibold shadow-xs"
+                  : "text-slate-400 hover:text-white hover:bg-white/[0.04]"
               }`}
             >
               <Camera className="w-3.5 h-3.5" />
@@ -204,10 +206,10 @@ export default function DashboardView({
 
             <button
               onClick={() => setActiveInputTab("samples")}
-              className={`flex-1 py-2 rounded-xl text-xs font-bold flex items-center justify-center gap-2 transition-all cursor-pointer ${
+              className={`flex-1 py-1.5 rounded-lg text-xs font-medium flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
                 activeInputTab === "samples"
-                  ? "bg-[#2ea44f] text-white shadow-md shadow-[#2ea44f]/20"
-                  : "text-gray-400 hover:text-white hover:bg-[#21262d]"
+                  ? "bg-white/[0.1] text-white font-semibold shadow-xs"
+                  : "text-slate-400 hover:text-white hover:bg-white/[0.04]"
               }`}
             >
               <Sparkles className="w-3.5 h-3.5 text-amber-300" />
@@ -216,7 +218,7 @@ export default function DashboardView({
           </div>
 
           {/* Active Intake Component */}
-          <div className="bg-[#161b22] border border-[#30363d] rounded-2xl p-5 shadow-xl">
+          <div className="bg-[#0b0f19] border border-white/[0.08] rounded-2xl p-5 shadow-xl">
             {activeInputTab === "upload" && (
               <ImageUploader
                 onImageSelected={onImageSelected}
@@ -235,26 +237,26 @@ export default function DashboardView({
 
             {activeInputTab === "samples" && (
               <div className="flex flex-col gap-3">
-                <span className="text-xs font-semibold text-gray-300">
-                  Select a standard item to analyze instantly:
+                <span className="text-xs font-medium text-slate-300">
+                  Select a calibrated baseline to analyze instantly:
                 </span>
                 <div className="grid grid-cols-2 gap-2.5">
                   {SAMPLE_ITEMS.map((sample) => (
                     <button
                       key={sample.id}
                       onClick={() => onSelectSample(sample)}
-                      className="p-2.5 rounded-xl bg-[#0d1117] border border-[#30363d] hover:border-[#2ea44f] hover:bg-[#21262d] flex items-center gap-2.5 text-left transition-all cursor-pointer group"
+                      className="p-2 rounded-xl bg-white/[0.02] border border-white/[0.06] hover:border-emerald-500/60 hover:bg-white/[0.05] flex items-center gap-2.5 text-left transition-all cursor-pointer group"
                     >
                       <img
                         src={sample.image}
                         alt={sample.name}
-                        className="w-10 h-10 rounded-lg object-cover border border-[#30363d]"
+                        className="w-9 h-9 rounded-lg object-cover border border-white/[0.08]"
                       />
                       <div className="flex flex-col min-w-0">
-                        <span className="text-xs font-bold text-white group-hover:text-emerald-300 truncate">
+                        <span className="text-xs font-semibold text-white group-hover:text-emerald-300 truncate">
                           {sample.name}
                         </span>
-                        <span className="text-[10px] text-gray-400 capitalize">
+                        <span className="text-[10px] text-slate-400 capitalize">
                           {sample.category}
                         </span>
                       </div>
@@ -266,18 +268,18 @@ export default function DashboardView({
 
             {/* AI Vision Analyzing Spinner */}
             {isAnalyzing && (
-              <div className="mt-4 p-4 bg-[#0d1117] rounded-xl border border-[#30363d] flex items-center justify-center gap-3 text-xs font-semibold text-emerald-400 animate-pulse">
-                <RefreshCw className="w-4 h-4 animate-spin" />
-                <span>Multimodal Vision AI analyzing item & emission metrics...</span>
+              <div className="mt-4 p-3.5 bg-emerald-500/10 rounded-xl border border-emerald-500/30 flex items-center justify-center gap-2.5 text-xs font-mono text-emerald-400 animate-pulse">
+                <RefreshCw className="w-3.5 h-3.5 animate-spin" />
+                <span>Running Roboflow & Gemini multimodal audit...</span>
               </div>
             )}
 
             {/* Error Message */}
             {analysisError && (
-              <div className="mt-4 p-3.5 bg-red-500/15 border border-red-500/30 rounded-xl text-xs text-red-300 flex items-start gap-2.5">
+              <div className="mt-4 p-3 bg-rose-500/10 border border-rose-500/30 rounded-xl text-xs text-rose-300 flex items-start gap-2.5">
                 <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
                 <div>
-                  <strong className="block font-bold">Analysis Notice</strong>
+                  <strong className="block font-semibold">Analysis Notice</strong>
                   <span>{analysisError}</span>
                 </div>
               </div>
@@ -300,16 +302,16 @@ export default function DashboardView({
           )}
 
           {/* Quick Guidance Box */}
-          <div className="p-4 bg-[#161b22] border border-[#30363d] rounded-2xl flex items-start gap-3 text-xs text-gray-300">
-            <ShieldCheck className="w-4 h-4 text-[#2ea44f] shrink-0 mt-0.5" />
+          <div className="p-4 bg-[#0b0f19] border border-white/[0.08] rounded-xl flex items-start gap-3 text-xs text-slate-300">
+            <ShieldCheck className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
             <div>
-              <strong className="text-white">UN SDG 13 Verification: </strong>
+              <strong className="text-white font-medium">UN SDG 13 Standard: </strong>
               All carbon factors are cross-referenced with international GHG Protocol Scope 1-3 standards.
               <button
                 onClick={onNavigateToHowItWorks}
-                className="ml-1 text-[#38bdf8] hover:underline inline-flex items-center gap-0.5"
+                className="ml-1 text-emerald-400 hover:underline inline-flex items-center gap-0.5 cursor-pointer"
               >
-                Inspect scientific model <ArrowRight className="w-3 h-3 inline" />
+                Inspect model <ArrowRight className="w-3 h-3 inline" />
               </button>
             </div>
           </div>
@@ -326,7 +328,7 @@ export default function DashboardView({
           />
 
           {/* Audited Session History Drawer */}
-          <div className="bg-[#161b22] border border-[#30363d] rounded-2xl p-5 shadow-xl">
+          <div className="bg-[#0b0f19] border border-white/[0.08] rounded-2xl p-5 shadow-xl">
             <HistoryList
               history={history}
               onClearHistory={onClearHistory}

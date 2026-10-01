@@ -24,7 +24,6 @@ export default function ImageUploader({
 
   const processFile = async (file: File) => {
     if (!file.type.startsWith("image/")) {
-      alert("Please upload a valid image file (PNG, JPEG, WebP).");
       return;
     }
     try {
@@ -33,7 +32,6 @@ export default function ImageUploader({
       onImageSelected(normalizedBase64);
     } catch (err) {
       console.error("Failed to process uploaded image:", err);
-      // Fallback
       const reader = new FileReader();
       reader.onloadend = () => {
         if (typeof reader.result === "string") {
@@ -77,7 +75,7 @@ export default function ImageUploader({
     <div className="w-full flex flex-col gap-3">
       {selectedImage ? (
         <div className="flex flex-col gap-3">
-          <div className="relative group bg-[#0d1117] rounded-xl border border-[#30363d] overflow-hidden aspect-video flex items-center justify-center shadow-inner">
+          <div className="relative group bg-[#070a11] rounded-2xl border border-white/[0.08] overflow-hidden aspect-video flex items-center justify-center shadow-2xl">
             <img
               src={selectedImage}
               alt="Selected carbon item"
@@ -85,20 +83,20 @@ export default function ImageUploader({
               referrerPolicy="no-referrer"
             />
             
-            {/* Scanning corner brackets */}
-            <div className="absolute top-3 left-3 w-6 h-6 border-t-2 border-l-2 border-[#2ea44f] pointer-events-none"></div>
-            <div className="absolute top-3 right-3 w-6 h-6 border-t-2 border-r-2 border-[#2ea44f] pointer-events-none"></div>
-            <div className="absolute bottom-3 left-3 w-6 h-6 border-b-2 border-l-2 border-[#2ea44f] pointer-events-none"></div>
-            <div className="absolute bottom-3 right-3 w-6 h-6 border-b-2 border-r-2 border-[#2ea44f] pointer-events-none"></div>
+            {/* Precision corner reticles */}
+            <div className="absolute top-3 left-3 w-5 h-5 border-t border-l border-emerald-400/80 pointer-events-none" />
+            <div className="absolute top-3 right-3 w-5 h-5 border-t border-r border-emerald-400/80 pointer-events-none" />
+            <div className="absolute bottom-3 left-3 w-5 h-5 border-b border-l border-emerald-400/80 pointer-events-none" />
+            <div className="absolute bottom-3 right-3 w-5 h-5 border-b border-r border-emerald-400/80 pointer-events-none" />
             
             {/* Scanning line animation when analyzing */}
             {isAnalyzing && (
-              <div className="absolute inset-x-0 h-1 bg-gradient-to-r from-transparent via-[#2ea44f] to-transparent animate-pulse top-1/2 -translate-y-1/2"></div>
+              <div className="absolute inset-x-0 h-0.5 bg-gradient-to-r from-transparent via-emerald-400 to-transparent animate-pulse top-1/2 -translate-y-1/2" />
             )}
 
-            {/* Quick status pill */}
-            <div className="absolute top-3 left-3 bg-[#0d1117]/80 backdrop-blur-md border border-[#30363d] px-2.5 py-1 rounded-md text-[11px] font-semibold text-gray-200 flex items-center gap-1.5 shadow">
-              <CheckCircle2 className="w-3.5 h-3.5 text-[#2ea44f]" />
+            {/* Quick status badge */}
+            <div className="absolute top-3 left-3 bg-[#0b0f19]/90 backdrop-blur-md border border-white/[0.08] px-2.5 py-1 rounded-md text-[11px] font-mono text-slate-200 flex items-center gap-1.5 shadow">
+              <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
               <span>Image Loaded</span>
             </div>
 
@@ -106,7 +104,7 @@ export default function ImageUploader({
             <div className="absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity">
               <button
                 onClick={onClear}
-                className="p-1.5 bg-red-600/90 hover:bg-red-600 text-white rounded-lg transition-colors shadow"
+                className="p-1.5 bg-rose-600/90 hover:bg-rose-500 text-white rounded-lg transition-colors shadow cursor-pointer"
                 title="Remove photo"
               >
                 <Trash2 className="w-4 h-4" />
@@ -119,17 +117,17 @@ export default function ImageUploader({
             <button
               onClick={() => onAnalyze ? onAnalyze() : onImageSelected(selectedImage)}
               disabled={isAnalyzing}
-              className="w-full py-2.5 px-4 bg-gradient-to-r from-[#2ea44f] to-[#238636] hover:from-[#34c759] hover:to-[#2ea44f] disabled:opacity-50 text-white font-bold text-xs sm:text-sm rounded-xl shadow-lg shadow-[#2ea44f]/20 flex items-center justify-center gap-2 transition-all cursor-pointer"
+              className="w-full py-2.5 px-4 bg-emerald-500 hover:bg-emerald-400 disabled:opacity-50 text-black font-mono font-bold text-xs uppercase tracking-wider rounded-xl shadow-lg shadow-emerald-500/10 flex items-center justify-center gap-2 transition-all cursor-pointer"
             >
               {isAnalyzing ? (
                 <>
-                  <RefreshCw className="w-4 h-4 animate-spin text-white" />
-                  <span>Analyzing with AI...</span>
+                  <RefreshCw className="w-4 h-4 animate-spin text-black" />
+                  <span>Processing Neural Scan...</span>
                 </>
               ) : (
                 <>
-                  <Sparkles className="w-4 h-4 text-yellow-300" />
-                  <span>Analyze with Gemini AI</span>
+                  <Sparkles className="w-4 h-4 text-black" />
+                  <span>Run Dual AI Vision</span>
                 </>
               )}
             </button>
@@ -137,9 +135,9 @@ export default function ImageUploader({
             <button
               onClick={triggerFileInput}
               disabled={isAnalyzing}
-              className="w-full py-2.5 px-4 bg-[#21262d] hover:bg-[#30363d] border border-[#30363d] text-gray-200 hover:text-white font-semibold text-xs sm:text-sm rounded-xl flex items-center justify-center gap-2 transition-all cursor-pointer"
+              className="w-full py-2.5 px-4 bg-white/[0.04] hover:bg-white/[0.08] border border-white/[0.08] text-slate-200 hover:text-white font-mono text-xs rounded-xl flex items-center justify-center gap-2 transition-all cursor-pointer"
             >
-              <Camera className="w-4 h-4 text-cyan-400" />
+              <Camera className="w-4 h-4 text-emerald-400" />
               <span>Change Photo</span>
             </button>
           </div>
@@ -158,10 +156,10 @@ export default function ImageUploader({
           onDragLeave={handleDragLeave}
           onDrop={handleDrop}
           onClick={triggerFileInput}
-          className={`w-full aspect-video border-2 border-dashed rounded-xl flex flex-col items-center justify-center p-6 text-center cursor-pointer transition-all ${
+          className={`w-full aspect-video border border-dashed rounded-2xl flex flex-col items-center justify-center p-6 text-center cursor-pointer transition-all ${
             isDragging
-              ? "border-[#2ea44f] bg-[#2ea44f]/10 text-[#f0f6fc]"
-              : "border-[#30363d] bg-[#0d1117] hover:border-gray-500 text-gray-400 hover:text-gray-200"
+              ? "border-emerald-400 bg-emerald-500/10 text-white"
+              : "border-white/[0.12] bg-[#070a11] hover:border-emerald-500/50 text-slate-400 hover:text-slate-200"
           }`}
         >
           <input
@@ -172,23 +170,23 @@ export default function ImageUploader({
             className="hidden"
           />
           <motion.div
-            animate={{ y: isDragging ? -5 : 0 }}
-            className="p-3 bg-[#161b22] border border-[#30363d] rounded-full mb-3 shadow"
+            animate={{ y: isDragging ? -4 : 0 }}
+            className="p-3.5 bg-[#0b0f19] border border-white/[0.08] rounded-xl mb-3 shadow"
           >
             {isCompressing ? (
-              <RefreshCw className="w-6 h-6 text-[#2ea44f] animate-spin" />
+              <RefreshCw className="w-6 h-6 text-emerald-400 animate-spin" />
             ) : (
-              <Upload className="w-6 h-6 text-[#2ea44f]" />
+              <Upload className="w-6 h-6 text-emerald-400" />
             )}
           </motion.div>
-          <p className="text-sm font-semibold text-[#f0f6fc]">
-            {isCompressing ? "Preparing image..." : "Drag & drop appliance/vehicle image"}
+          <p className="text-sm font-semibold text-white">
+            {isCompressing ? "Normalizing image..." : "Drag & drop appliance or vehicle photo"}
           </p>
-          <p className="text-xs mt-1 text-gray-500">
-            or <span className="text-[#2ea44f] underline font-medium">browse local files</span>
+          <p className="text-xs mt-1 text-slate-400">
+            or <span className="text-emerald-400 underline font-medium">browse local files</span>
           </p>
-          <p className="text-[10px] mt-3 text-gray-600">
-            Supports PNG, JPG, WEBP (Instant AI Vision Processing)
+          <p className="text-[10px] font-mono mt-3 text-slate-500">
+            Supports PNG, JPG, WEBP (Roboflow Inference + Gemini Verification)
           </p>
         </div>
       )}

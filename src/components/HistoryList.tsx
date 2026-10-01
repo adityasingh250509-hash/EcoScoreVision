@@ -1,7 +1,6 @@
 import React from "react";
 import { HistoryItem, CategoryType } from "../types";
-import { Trash2, Wind, Car, Zap, RefreshCw, Clock, History, Download } from "lucide-react";
-import { motion } from "motion/react";
+import { Trash2, Wind, Car, Zap, Clock, History, Download } from "lucide-react";
 import { generatePDFReport } from "../utils/pdfGenerator";
 
 interface HistoryListProps {
@@ -20,7 +19,7 @@ export default function HistoryList({
   const getIcon = (category: CategoryType) => {
     switch (category) {
       case "appliance":
-        return <Wind className="w-4 h-4 text-sky-400" />;
+        return <Wind className="w-4 h-4 text-emerald-400" />;
       case "transport":
         return <Car className="w-4 h-4 text-amber-400" />;
       case "energy":
@@ -31,32 +30,32 @@ export default function HistoryList({
   };
 
   return (
-    <div className="flex flex-col gap-4 p-5 bg-[#161b22] border border-[#30363d] rounded-xl text-[#f0f6fc]">
-      <div className="flex items-center justify-between border-b border-[#30363d] pb-3">
+    <div className="flex flex-col gap-4 p-5 bg-[#0b0f19] border border-white/[0.08] rounded-2xl text-[#f1f5f9] shadow-xl">
+      <div className="flex items-center justify-between border-b border-white/[0.06] pb-3">
         <div className="flex items-center gap-2">
-          <History className="w-4 h-4 text-[#2ea44f]" />
-          <h3 className="text-sm font-semibold">Audit History</h3>
+          <History className="w-4 h-4 text-emerald-400" />
+          <h3 className="text-sm font-bold text-white font-mono">Audit History</h3>
         </div>
         {history.length > 0 && (
           <div className="flex items-center gap-3">
             <button
               onClick={() => generatePDFReport(history, userName)}
-              className="text-[11px] text-[#2ea44f] hover:text-emerald-400 flex items-center gap-1 font-semibold transition-colors bg-[#2ea44f]/10 border border-[#2ea44f]/30 px-2 py-1 rounded-md"
+              className="text-[11px] text-emerald-400 hover:text-emerald-300 flex items-center gap-1 font-mono font-semibold transition-colors bg-emerald-500/10 border border-emerald-500/25 px-2.5 py-1 rounded-lg cursor-pointer"
             >
-              <Download className="w-3.5 h-3.5" /> Download Report
+              <Download className="w-3.5 h-3.5" /> PDF Report
             </button>
             <button
               onClick={onClearHistory}
-              className="text-[11px] text-red-400 hover:text-red-500 hover:underline flex items-center gap-1 font-medium transition-colors"
+              className="text-[11px] text-rose-400 hover:text-rose-300 font-mono flex items-center gap-1 transition-colors cursor-pointer"
             >
-              <Trash2 className="w-3.5 h-3.5" /> Purge Scans
+              <Trash2 className="w-3.5 h-3.5" /> Purge
             </button>
           </div>
         )}
       </div>
 
       {history.length === 0 ? (
-        <div className="py-6 text-center text-xs text-gray-500">
+        <div className="py-6 text-center text-xs text-slate-500 font-mono">
           No audit entries recorded. Submit your first analysis to populate this timeline.
         </div>
       ) : (
@@ -65,26 +64,26 @@ export default function HistoryList({
             <div
               key={item.id}
               onClick={() => onSelectHistoryItem(item)}
-              className="flex items-center justify-between p-3 bg-[#0d1117] border border-[#30363d] hover:border-gray-500 rounded-lg cursor-pointer transition-all group"
+              className="flex items-center justify-between p-3 bg-white/[0.02] border border-white/[0.06] hover:border-white/[0.15] hover:bg-white/[0.04] rounded-xl cursor-pointer transition-all group"
             >
               <div className="flex items-center gap-2.5">
-                <div className="p-1.5 bg-[#161b22] rounded-lg">
+                <div className="p-2 bg-[#070a11] rounded-lg border border-white/[0.06]">
                   {getIcon(item.category)}
                 </div>
                 <div className="flex flex-col">
-                  <span className="text-xs font-semibold text-gray-200 line-clamp-1">
+                  <span className="text-xs font-semibold text-slate-200 line-clamp-1 group-hover:text-white">
                     {item.item_name}
                   </span>
-                  <span className="text-[9px] text-gray-500 flex items-center gap-1">
+                  <span className="text-[10px] text-slate-500 flex items-center gap-1 font-mono">
                     <Clock className="w-2.5 h-2.5" /> {item.timestamp}
                   </span>
                 </div>
               </div>
               <div className="text-right">
-                <p className="text-xs font-mono font-bold text-gray-200">
-                  {item.emissions.toFixed(1)} <span className="text-[9px] font-normal text-gray-400">kg</span>
+                <p className="text-xs font-mono font-bold text-white">
+                  {item.emissions.toFixed(1)} <span className="text-[9px] font-normal text-slate-400">kg</span>
                 </p>
-                <p className="text-[9px] text-[#2ea44f] font-mono">
+                <p className="text-[10px] text-emerald-400 font-mono">
                   {item.treeOffset} {item.treeOffset === 1 ? "tree" : "trees"}
                 </p>
               </div>

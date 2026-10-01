@@ -25,11 +25,7 @@ export default function DynamicForm({
   const [customFactor, setCustomFactor] = useState<number>(1.0);
   const [isCustom, setIsCustom] = useState<boolean>(false);
 
-  // Official Baseline Factors:
-  // * Air Conditioner: 1.5 kg CO2 per hour
-  // * Petrol Car: 0.12 kg CO2 per km
-  // * Diesel Car: 0.14 kg CO2 per km
-  // * Grid Electricity: 0.82 kg CO2 per kWh
+  // Official Baseline Factors
   const BASELINE_FACTORS: Record<
     CategoryType,
     Array<{ key: string; label: string; value: number; unit: UnitType }>
@@ -73,7 +69,6 @@ export default function DynamicForm({
     if (detectedItem.estimated_quantity !== undefined) {
       setQuantity(detectedItem.estimated_quantity);
     } else {
-      // Dynamic initial quantity defaults
       if (detectedItem.default_unit === "km") {
         setQuantity(50);
       } else if (detectedItem.default_unit === "kWh") {
@@ -88,7 +83,6 @@ export default function DynamicForm({
       setCustomFactor(detectedItem.estimated_factor);
     } else {
       const options = getCategoryOptions();
-      // Attempt to match by name or pick the default
       let matchedOption = options[0];
       const nameLower = detectedItem.item_name.toLowerCase();
       
@@ -154,21 +148,21 @@ export default function DynamicForm({
   return (
     <form
       onSubmit={handleSubmit}
-      className="p-5 bg-[#161b22] border border-[#30363d] rounded-xl flex flex-col gap-4 text-[#f0f6fc] shadow-md"
+      className="p-5 bg-[#0b0f19] border border-white/[0.08] rounded-2xl flex flex-col gap-4 text-[#f1f5f9] shadow-xl"
     >
-      <div className="flex items-start gap-3 border-b border-[#30363d] pb-3 mb-1">
-        <div className="p-2 bg-[#2ea44f]/10 border border-[#2ea44f]/30 rounded-lg text-[#2ea44f] mt-1 shrink-0">
+      <div className="flex items-start gap-3 border-b border-white/[0.06] pb-3 mb-1">
+        <div className="p-2.5 bg-emerald-500/10 border border-emerald-500/25 rounded-xl text-emerald-400 mt-1 shrink-0">
           {detectedItem.category === "appliance" && <Wind className="w-5 h-5" />}
           {detectedItem.category === "transport" && <Car className="w-5 h-5" />}
           {detectedItem.category === "energy" && <Zap className="w-5 h-5" />}
           {detectedItem.category === "waste" && <Trash2 className="w-5 h-5" />}
         </div>
         <div>
-          <span className="text-[10px] uppercase font-bold tracking-wider text-[#2ea44f]">
-            Detected Object
+          <span className="text-[10px] uppercase font-mono tracking-wider text-emerald-400">
+            Detected Hardware / Entity
           </span>
-          <h3 className="text-base font-semibold leading-tight">{detectedItem.item_name}</h3>
-          <p className="text-xs text-gray-400 capitalize mt-0.5">
+          <h3 className="text-base font-bold leading-tight text-white">{detectedItem.item_name}</h3>
+          <p className="text-xs text-slate-400 capitalize mt-0.5 font-mono">
             Category: {detectedItem.category} &bull; Unit: {detectedItem.default_unit}
           </p>
         </div>
@@ -176,14 +170,14 @@ export default function DynamicForm({
 
       {/* Emission Factor Selector */}
       <div className="flex flex-col gap-1.5">
-        <label className="text-xs font-semibold text-gray-300 flex items-center justify-between">
+        <label className="text-xs font-semibold text-slate-300 flex items-center justify-between">
           <span>Carbon Emission Profile</span>
           <button
             type="button"
             onClick={() => setIsCustom(!isCustom)}
-            className="text-[11px] text-[#2ea44f] hover:underline flex items-center gap-1 font-medium"
+            className="text-[11px] text-emerald-400 hover:text-emerald-300 flex items-center gap-1 font-mono cursor-pointer transition-colors"
           >
-            <Sliders className="w-3 h-3" /> {isCustom ? "Use Baseline" : "Customize Coefficient"}
+            <Sliders className="w-3 h-3" /> {isCustom ? "Use Baseline" : "Customize"}
           </button>
         </label>
 
@@ -196,9 +190,9 @@ export default function DynamicForm({
                 min="0"
                 value={customFactor}
                 onChange={(e) => setCustomFactor(parseFloat(e.target.value) || 0)}
-                className="w-full px-3 py-2 bg-[#0d1117] border border-[#30363d] rounded-lg text-sm text-[#f0f6fc] focus:outline-none focus:border-[#2ea44f]"
+                className="w-full px-3.5 py-2.5 bg-[#070a11] border border-white/[0.1] rounded-xl text-sm text-white focus:outline-none focus:border-emerald-500 font-mono"
               />
-              <span className="absolute right-3 top-2.5 text-xs text-gray-500 font-mono">
+              <span className="absolute right-3.5 top-3 text-xs text-slate-400 font-mono">
                 kg CO2 / {detectedItem.default_unit}
               </span>
             </div>
@@ -212,22 +206,22 @@ export default function DynamicForm({
                   setSelectedFactorKey(opt.key);
                   setCustomFactor(opt.value);
                 }}
-                className={`flex items-center justify-between p-3 rounded-lg border cursor-pointer transition-all ${
+                className={`flex items-center justify-between p-3 rounded-xl border cursor-pointer transition-all ${
                   selectedFactorKey === opt.key
-                    ? "border-[#2ea44f] bg-[#2ea44f]/5 text-[#f0f6fc]"
-                    : "border-[#30363d] bg-[#0d1117] hover:bg-[#161b22] text-gray-400"
+                    ? "border-emerald-500/60 bg-emerald-500/10 text-white shadow-sm"
+                    : "border-white/[0.06] bg-white/[0.02] hover:bg-white/[0.04] text-slate-400"
                 }`}
               >
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2.5">
                   <div className={`w-3.5 h-3.5 rounded-full border flex items-center justify-center ${
-                    selectedFactorKey === opt.key ? "border-[#2ea44f]" : "border-gray-500"
+                    selectedFactorKey === opt.key ? "border-emerald-400" : "border-slate-600"
                   }`}>
-                    {selectedFactorKey === opt.key && <div className="w-2 h-2 rounded-full bg-[#2ea44f]" />}
+                    {selectedFactorKey === opt.key && <div className="w-1.5 h-1.5 rounded-full bg-emerald-400" />}
                   </div>
-                  <span className="text-xs font-medium text-gray-200">{opt.label}</span>
+                  <span className="text-xs font-medium text-slate-200">{opt.label}</span>
                 </div>
-                <span className="text-xs font-mono font-bold text-gray-300">
-                  {opt.value} <span className="text-[9px] text-gray-500 font-normal">kg/unit</span>
+                <span className="text-xs font-mono font-bold text-slate-300">
+                  {opt.value} <span className="text-[10px] text-slate-500 font-normal">kg/unit</span>
                 </span>
               </label>
             ))}
@@ -237,7 +231,7 @@ export default function DynamicForm({
 
       {/* Usage Quantity Field */}
       <div className="flex flex-col gap-1.5 mt-1">
-        <label className="text-xs font-semibold text-gray-300">
+        <label className="text-xs font-semibold text-slate-300">
           {activeUnitConfig.heading}
         </label>
         <div className="relative">
@@ -248,14 +242,14 @@ export default function DynamicForm({
             required
             value={quantity}
             onChange={(e) => setQuantity(parseFloat(e.target.value) || 0)}
-            className="w-full px-3 py-2.5 bg-[#0d1117] border border-[#30363d] rounded-lg text-sm text-[#f0f6fc] font-semibold focus:outline-none focus:border-[#2ea44f]"
+            className="w-full px-3.5 py-2.5 bg-[#070a11] border border-white/[0.1] rounded-xl text-sm text-white font-mono font-semibold focus:outline-none focus:border-emerald-500"
             placeholder={activeUnitConfig.placeholder}
           />
-          <span className="absolute right-3 top-3 text-xs text-gray-400 font-bold capitalize">
+          <span className="absolute right-3.5 top-3 text-xs text-slate-400 font-mono capitalize">
             {detectedItem.default_unit}
           </span>
         </div>
-        <p className="text-[10px] text-gray-500 leading-normal">{activeUnitConfig.helper}</p>
+        <p className="text-[10px] text-slate-500 leading-normal">{activeUnitConfig.helper}</p>
       </div>
 
       {/* Compute Button */}
@@ -264,7 +258,7 @@ export default function DynamicForm({
         whileTap={{ scale: 0.99 }}
         type="submit"
         disabled={isCalculating || quantity <= 0}
-        className="w-full mt-2 py-2.5 bg-[#2ea44f] hover:bg-[#2c974b] disabled:bg-gray-600 disabled:cursor-not-allowed text-[#f0f6fc] rounded-lg text-sm font-semibold shadow flex items-center justify-center gap-2 transition-colors"
+        className="w-full mt-2 py-3 bg-emerald-500 hover:bg-emerald-400 disabled:bg-slate-800 disabled:text-slate-500 disabled:cursor-not-allowed text-black rounded-xl text-xs font-bold uppercase font-mono tracking-wider shadow-lg shadow-emerald-500/10 flex items-center justify-center gap-2 transition-all cursor-pointer"
       >
         {isCalculating ? (
           <>
