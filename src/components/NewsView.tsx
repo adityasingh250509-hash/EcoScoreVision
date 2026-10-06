@@ -18,6 +18,16 @@ import {
 } from "lucide-react";
 import { ClimateNewsArticle } from "../types";
 
+export const CATEGORY_FALLBACK_IMAGES: Record<string, string> = {
+  renewables: "https://images.unsplash.com/photo-1497435334941-8c899ee9e8e9?auto=format&fit=crop&w=1000&q=80",
+  reforestation: "https://images.unsplash.com/photo-1542601906990-b4d3fb778b09?auto=format&fit=crop&w=1000&q=80",
+  mobility: "https://images.unsplash.com/photo-1593941707882-a5bba14938c7?auto=format&fit=crop&w=1000&q=80",
+  policy: "https://images.unsplash.com/photo-1448375240586-882707db888b?auto=format&fit=crop&w=1000&q=80",
+  oceans: "https://images.unsplash.com/photo-1544551763-46a013bb70d5?auto=format&fit=crop&w=1000&q=80",
+};
+
+export const GLOBAL_DEFAULT_IMAGE = "https://images.unsplash.com/photo-1466611653911-95081537e5b7?auto=format&fit=crop&w=1000&q=80";
+
 export const CURATED_CLIMATE_NEWS: ClimateNewsArticle[] = [
   {
     id: "news-1",
@@ -25,7 +35,7 @@ export const CURATED_CLIMATE_NEWS: ClimateNewsArticle[] = [
     summary: "Solar, wind, and battery storage investments have officially doubled fossil fuel capital allocation, marking an unprecedented inflection point in planetary decarbonization.",
     fullContent: "According to the latest International Energy Agency (IEA) World Energy Investment report, global investment in clean energy technologies and infrastructure reached an astounding $2.1 trillion in the past year. Solar photovoltaic systems alone accounted for more capital than all global oil production combined. The rapid reduction in lithium iron phosphate battery cell costs has accelerated utility-scale grid storage installations by 125% across five continents, ensuring that renewable wind and solar generation can supply steady baseload electricity throughout night cycles.",
     url: "https://www.iea.org",
-    imageUrl: "https://images.unsplash.com/photo-1509391365360-2e959784a276?auto=format&fit=crop&w=1000&q=80",
+    imageUrl: "https://images.unsplash.com/photo-1497435334941-8c899ee9e8e9?auto=format&fit=crop&w=1000&q=80",
     category: "renewables",
     publishedDate: "August 2026",
     readTime: "3 min read",
@@ -39,7 +49,7 @@ export const CURATED_CLIMATE_NEWS: ClimateNewsArticle[] = [
     summary: "Massive coastal wetland sanctuary initiatives are set to sequester over 500 million metric tons of carbon while shielding vulnerable coastal communities from storm surges.",
     fullContent: "At the United Nations Climate Summit, delegates from 114 coastal nations signed the Global Mangrove Alliance Accord. Mangroves sequester carbon at up to four times the rate of terrestrial tropical forests by locking organic matter deep within anaerobic marine sediment. The treaty guarantees $12 billion in multilateral green climate funding dedicated to replanting 15 million hectares of mangrove forests across Southeast Asia, West Africa, and Latin America over the next seven years.",
     url: "https://www.unep.org",
-    imageUrl: "https://images.unsplash.com/photo-1511497584788-87676104235f?auto=format&fit=crop&w=1000&q=80",
+    imageUrl: "https://images.unsplash.com/photo-1542601906990-b4d3fb778b09?auto=format&fit=crop&w=1000&q=80",
     category: "reforestation",
     publishedDate: "August 2026",
     readTime: "4 min read",
@@ -53,7 +63,7 @@ export const CURATED_CLIMATE_NEWS: ClimateNewsArticle[] = [
     summary: "New non-flammable battery chemistry eliminates cobalt and nickel mining requirements, cutting manufacturing greenhouse gas emissions by 45%.",
     fullContent: "Automotive and energy storage consortiums have launched the world's first multi-gigawatt production lines for solid-state sodium-ion battery cells. By replacing scarce lithium and high-emission nickel-cobalt chemistries with abundant salt-derived sodium and solid ceramic electrolytes, cell manufacturing carbon intensity is cut from 85 kg CO2/kWh down to just 42 kg CO2/kWh. Furthermore, the chemistry remains safe and operational at extreme temperatures down to -30°C without requiring heavy thermal heating loops.",
     url: "https://www.sciencedaily.com",
-    imageUrl: "https://images.unsplash.com/photo-1558441719-8b449c6ff670?auto=format&fit=crop&w=1000&q=80",
+    imageUrl: "https://images.unsplash.com/photo-1593941707882-a5bba14938c7?auto=format&fit=crop&w=1000&q=80",
     category: "mobility",
     publishedDate: "July 2026",
     readTime: "3 min read",
@@ -121,20 +131,26 @@ export default function NewsView() {
       if (res.ok) {
         const data = await res.json();
         if (data.news && Array.isArray(data.news) && data.news.length > 0) {
+          const livePool = [
+            "https://images.unsplash.com/photo-1497435334941-8c899ee9e8e9?auto=format&fit=crop&w=1000&q=80",
+            "https://images.unsplash.com/photo-1466611653911-95081537e5b7?auto=format&fit=crop&w=1000&q=80",
+            "https://images.unsplash.com/photo-1542601906990-b4d3fb778b09?auto=format&fit=crop&w=1000&q=80",
+            "https://images.unsplash.com/photo-1513836279014-a89f7a76ae86?auto=format&fit=crop&w=1000&q=80",
+            "https://images.unsplash.com/photo-1593941707882-a5bba14938c7?auto=format&fit=crop&w=1000&q=80",
+            "https://images.unsplash.com/photo-1544551763-46a013bb70d5?auto=format&fit=crop&w=1000&q=80"
+          ];
+
           const liveArticles: ClimateNewsArticle[] = data.news.map((item: any, idx: number) => {
-            const fallbackImages = [
-              "https://images.unsplash.com/photo-1509391365360-2e959784a276?auto=format&fit=crop&w=1000&q=80",
-              "https://images.unsplash.com/photo-1511497584788-87676104235f?auto=format&fit=crop&w=1000&q=80",
-              "https://images.unsplash.com/photo-1448375240586-882707db888b?auto=format&fit=crop&w=1000&q=80",
-            ];
+            const cat = (item.category || "renewables").toLowerCase();
+            const fallbackForCat = CATEGORY_FALLBACK_IMAGES[cat] || livePool[idx % livePool.length];
             return {
               id: `live-${idx}-${Date.now()}`,
               title: item.title,
               summary: item.summary,
               fullContent: item.summary + " Verified via live Gemini Search Grounding on international environmental databases.",
               url: item.url || "https://unep.org",
-              imageUrl: item.imageUrl || fallbackImages[idx % fallbackImages.length],
-              category: (item.category || "renewables").toLowerCase(),
+              imageUrl: item.imageUrl || fallbackForCat,
+              category: cat,
               publishedDate: "Just now",
               readTime: "3 min read",
               source: item.source || "Global Decarbonization Wire",
@@ -183,7 +199,7 @@ export default function NewsView() {
           <button
             onClick={handleFetchLiveNews}
             disabled={isLoadingLive}
-            className="px-4 py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-black font-mono font-bold text-xs uppercase tracking-wider flex items-center gap-2 transition-all shadow-lg shadow-emerald-500/10 cursor-pointer disabled:opacity-50"
+            className="px-4 py-2.5 rounded-full bg-white hover:bg-slate-200 text-black font-mono font-bold text-xs uppercase tracking-wider flex items-center gap-2 transition-all shadow-lg shadow-white/10 cursor-pointer disabled:opacity-50"
           >
             <RefreshCw className={`w-3.5 h-3.5 ${isLoadingLive ? "animate-spin" : ""}`} />
             <span>{isLoadingLive ? "Grounding via AI..." : "Refresh Live News"}</span>
@@ -192,7 +208,7 @@ export default function NewsView() {
       </div>
 
       {liveSuccessMsg && (
-        <div className="p-3 bg-emerald-500/10 border border-emerald-500/25 rounded-xl text-xs font-mono text-emerald-300 flex items-center gap-2">
+        <div className="p-3 bg-emerald-500/10 border border-emerald-500/25 rounded-2xl text-xs font-mono text-emerald-300 flex items-center gap-2">
           <CheckCircle className="w-4 h-4 text-emerald-400" />
           <span>{liveSuccessMsg}</span>
         </div>
@@ -216,9 +232,9 @@ export default function NewsView() {
               <button
                 key={cat.id}
                 onClick={() => setSelectedCategory(cat.id)}
-                className={`px-3 py-1.5 rounded-xl text-xs font-mono flex items-center gap-1.5 transition-all cursor-pointer ${
+                className={`px-3 py-1.5 rounded-full text-xs font-mono flex items-center gap-1.5 transition-all cursor-pointer ${
                   isSelected
-                    ? "bg-emerald-500 text-black font-semibold shadow-md shadow-emerald-500/20"
+                    ? "bg-white text-black font-semibold shadow-md"
                     : "bg-[#070a11] border border-white/[0.06] text-slate-400 hover:text-white hover:bg-white/[0.05]"
                 }`}
               >
@@ -237,7 +253,7 @@ export default function NewsView() {
             placeholder="Search news, topics..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full pl-9 pr-3.5 py-1.5 rounded-xl bg-[#070a11] border border-white/[0.08] text-xs text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500 font-mono"
+            className="w-full pl-9 pr-3.5 py-1.5 rounded-full bg-[#070a11] border border-white/[0.08] text-xs text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500 font-mono"
           />
         </div>
       </div>
@@ -250,25 +266,32 @@ export default function NewsView() {
             className="bg-[#0b0f19] border border-white/[0.08] hover:border-emerald-500/50 rounded-2xl overflow-hidden flex flex-col justify-between transition-all duration-300 hover:shadow-2xl hover:-translate-y-1 group"
           >
             <div>
-              {/* Photo Container */}
+              {/* Photo Container with Guaranteed Fallback */}
               <div className="relative h-48 w-full overflow-hidden bg-[#070a11]">
                 <img
                   src={article.imageUrl}
                   alt={article.title}
+                  loading="lazy"
+                  onError={(e) => {
+                    const fallback = CATEGORY_FALLBACK_IMAGES[article.category] || GLOBAL_DEFAULT_IMAGE;
+                    if (e.currentTarget.src !== fallback) {
+                      e.currentTarget.src = fallback;
+                    }
+                  }}
                   className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-[#0b0f19] via-transparent to-transparent opacity-90" />
 
                 {/* Badge on Photo */}
                 <div className="absolute top-3 left-3 flex items-center gap-2">
-                  <span className="px-2.5 py-0.5 rounded-md text-[10px] font-mono font-bold uppercase tracking-wider bg-[#0b0f19]/90 backdrop-blur-md text-emerald-400 border border-emerald-500/30">
+                  <span className="px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold uppercase tracking-wider bg-[#0b0f19]/90 backdrop-blur-md text-emerald-400 border border-emerald-500/30">
                     {article.category}
                   </span>
                 </div>
 
                 {article.impactScore && (
-                  <div className="absolute top-3 right-3 px-2 py-0.5 rounded-md text-[10px] font-mono font-bold bg-emerald-500 text-black shadow-md flex items-center gap-1">
-                    <Award className="w-3 h-3" />
+                  <div className="absolute top-3 right-3 px-2 py-0.5 rounded-full text-[10px] font-mono font-bold bg-white text-black shadow-md flex items-center gap-1">
+                    <Award className="w-3 h-3 text-black" />
                     <span>{article.impactScore}% Impact</span>
                   </div>
                 )}
@@ -304,7 +327,7 @@ export default function NewsView() {
                 </span>
                 <button
                   onClick={() => setSelectedArticle(article)}
-                  className="px-3 py-1.5 rounded-lg bg-white/[0.04] hover:bg-emerald-500 hover:text-black text-slate-300 text-xs font-mono font-medium flex items-center gap-1.5 transition-all cursor-pointer"
+                  className="px-3 py-1.5 rounded-lg bg-white/[0.04] hover:bg-white hover:text-black text-slate-300 text-xs font-mono font-medium flex items-center gap-1.5 transition-all cursor-pointer"
                 >
                   <BookOpen className="w-3.5 h-3.5" />
                   <span>Read Story</span>
@@ -325,7 +348,7 @@ export default function NewsView() {
               setSelectedCategory("all");
               setSearchQuery("");
             }}
-            className="mt-2 px-4 py-2 rounded-xl bg-white/[0.05] hover:bg-white/[0.1] text-xs font-mono font-semibold text-white cursor-pointer"
+            className="mt-2 px-4 py-2 rounded-full bg-white/[0.05] hover:bg-white/[0.1] text-xs font-mono font-semibold text-white cursor-pointer"
           >
             Reset Filters
           </button>
@@ -336,11 +359,17 @@ export default function NewsView() {
       {selectedArticle && (
         <div className="fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-center justify-center p-4">
           <div className="bg-[#0b0f19] border border-white/[0.1] rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto shadow-2xl flex flex-col text-[#f1f5f9] animate-in fade-in zoom-in-95 duration-200">
-            {/* Modal Image Banner */}
+            {/* Modal Image Banner with Guaranteed Fallback */}
             <div className="relative h-64 w-full bg-[#070a11]">
               <img
                 src={selectedArticle.imageUrl}
                 alt={selectedArticle.title}
+                onError={(e) => {
+                  const fallback = CATEGORY_FALLBACK_IMAGES[selectedArticle.category] || GLOBAL_DEFAULT_IMAGE;
+                  if (e.currentTarget.src !== fallback) {
+                    e.currentTarget.src = fallback;
+                  }
+                }}
                 className="w-full h-full object-cover"
               />
               <button
@@ -349,7 +378,7 @@ export default function NewsView() {
               >
                 ✕
               </button>
-              <div className="absolute bottom-3 left-4 px-3 py-1 rounded-md text-xs font-mono font-bold uppercase bg-black/80 text-emerald-400 border border-emerald-500/40 backdrop-blur-md">
+              <div className="absolute bottom-3 left-4 px-3 py-1 rounded-full text-xs font-mono font-bold uppercase bg-black/80 text-emerald-400 border border-emerald-500/40 backdrop-blur-md">
                 {selectedArticle.category}
               </div>
             </div>
@@ -369,7 +398,7 @@ export default function NewsView() {
               </h2>
 
               {selectedArticle.keyTakeaway && (
-                <div className="p-3.5 bg-[#070a11] rounded-xl border border-emerald-500/30 flex items-start gap-2.5">
+                <div className="p-3.5 bg-[#070a11] rounded-2xl border border-emerald-500/30 flex items-start gap-2.5">
                   <Sparkles className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
                   <div className="text-xs text-slate-200">
                     <strong className="text-emerald-400 font-mono">Key Climate Takeaway: </strong>
@@ -391,15 +420,15 @@ export default function NewsView() {
                   href={selectedArticle.url}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="px-4 py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-black font-mono font-bold text-xs uppercase tracking-wider flex items-center gap-2 transition-colors cursor-pointer"
+                  className="px-5 py-2.5 rounded-full bg-white hover:bg-slate-200 text-black font-mono font-bold text-xs uppercase tracking-wider flex items-center gap-2 transition-colors cursor-pointer shadow-lg shadow-white/10"
                 >
                   <span>Visit Official Source</span>
-                  <ExternalLink className="w-3.5 h-3.5" />
+                  <ExternalLink className="w-3.5 h-3.5 text-black" />
                 </a>
 
                 <button
                   onClick={() => setSelectedArticle(null)}
-                  className="px-4 py-2.5 rounded-xl bg-white/[0.04] hover:bg-white/[0.08] text-slate-300 font-mono text-xs transition-colors cursor-pointer border border-white/[0.08]"
+                  className="px-4 py-2.5 rounded-full bg-white/[0.04] hover:bg-white/[0.08] text-slate-300 font-mono text-xs transition-colors cursor-pointer border border-white/[0.08]"
                 >
                   Close Reader
                 </button>

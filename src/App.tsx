@@ -331,7 +331,7 @@ export default function App() {
             </div>
             <div className="flex flex-col">
               <span className="text-sm font-bold tracking-tight text-white group-hover:text-emerald-300 transition-colors flex items-center gap-1.5">
-                EcoPulse <span className="text-[10px] font-mono px-1.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">ASTRA 6</span>
+                EcoPulse <span className="text-[10px] font-mono px-1.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">AI VISION</span>
               </span>
               <span className="text-[9px] font-mono text-slate-500 -mt-0.5">Planetary Intelligence</span>
             </div>

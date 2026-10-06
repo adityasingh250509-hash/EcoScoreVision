@@ -110,7 +110,7 @@ export default function HomeView({
 
   return (
     <div className="flex flex-col gap-14 pb-20 text-[#f1f5f9]">
-      {/* ---------------- 1. ASTRA 6 DEEP SPACE CINEMATIC HERO ---------------- */}
+      {/* ---------------- 1. DEEP SPACE CINEMATIC HERO ---------------- */}
       <section className="relative pt-2 pb-4">
         {/* Ambient Top Glow */}
         <div 
@@ -127,10 +127,10 @@ export default function HomeView({
               transition={{ duration: 0.4 }}
               className="flex flex-col gap-3 max-w-2xl"
             >
-              {/* Astra 6 Badge */}
+              {/* Vision Badge */}
               <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/[0.04] border border-white/[0.1] text-xs font-mono w-fit backdrop-blur-md">
                 <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse shadow-[0_0_8px_#34d399]" />
-                <span className="text-white font-semibold tracking-wider">ASTRA 6 ORBITAL VISION</span>
+                <span className="text-white font-semibold tracking-wider">ORBITAL CLIMATE VISION</span>
                 <span className="text-slate-600">//</span>
                 <span className="text-slate-400">ROBOFLOW & GEMINI</span>
               </div>
@@ -145,7 +145,7 @@ export default function HomeView({
 
               {/* Subtitle */}
               <p className="text-sm sm:text-base text-slate-400 leading-relaxed max-w-xl">
-                Real-time visual decarbonization intelligence inspired by OpenAI Astra. 
+                Real-time visual decarbonization intelligence powered by neural models. 
                 Using a custom <strong className="text-white">Roboflow Model</strong> (<span className="text-violet-300 font-mono text-xs">electrical-appliance-detector</span>) 
                 paired with <strong className="text-white">Gemini verification</strong>, EcoPulse audits everyday appliances, vehicles, and energy infrastructures directly from planetary orbit.
               </p>
@@ -284,7 +284,7 @@ export default function HomeView({
                 </div>
                 <div>
                   <div className="flex items-center gap-2">
-                    <span className="text-xs font-bold font-mono tracking-wide text-white">ASTRA ORBITAL ARRAY</span>
+                    <span className="text-xs font-bold font-mono tracking-wide text-white">ORBITAL SENSOR ARRAY</span>
                     <span className="text-[10px] font-mono px-2 py-0.5 rounded-md bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
                       LIVE
                     </span>
@@ -403,10 +403,10 @@ export default function HomeView({
         </div>
       </section>
 
-      {/* ---------------- 3. FOUR PILLARS OF ASTRA / ROBOFLOW ARCHITECTURE ---------------- */}
+      {/* ---------------- 3. FOUR PILLARS OF SYSTEM ARCHITECTURE ---------------- */}
       <section className="flex flex-col gap-6">
         <div className="flex flex-col gap-1">
-          <span className="text-xs font-mono font-medium text-emerald-400 uppercase tracking-wider">Astra System Architecture</span>
+          <span className="text-xs font-mono font-medium text-emerald-400 uppercase tracking-wider">System Architecture</span>
           <h2 className="text-xl sm:text-3xl font-bold text-white tracking-tight">
             Scientific Deep-Space Decarbonization Pipeline
           </h2>
@@ -487,7 +487,7 @@ export default function HomeView({
       <section className="bg-black/60 border border-white/[0.08] rounded-3xl p-6 sm:p-8 shadow-2xl backdrop-blur-xl">
         <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 mb-5">
           <div>
-            <span className="text-xs font-mono font-medium text-emerald-400 uppercase tracking-wider">Astra Simulation Bench</span>
+            <span className="text-xs font-mono font-medium text-emerald-400 uppercase tracking-wider">Simulation Bench</span>
             <h2 className="text-lg sm:text-2xl font-bold text-white mt-0.5">
               Audit Everyday Appliances & Hardware
             </h2>
